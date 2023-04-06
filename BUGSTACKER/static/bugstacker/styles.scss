@@ -1,0 +1,96 @@
+$primary-theme: #0D1117;
+$secondary-theme: rgb(172, 0, 0);
+$nav-dark: #161B22;
+$text-color: #E4E8EC;
+$background: black;
+
+%well {
+    color: $text-color;
+    border-color: #30363d;
+    border-style: solid;
+    border-width: 1px;
+}
+
+%bubble {
+    background-color: $primary-theme;
+    border-color: #30363d;
+    border-style: solid;
+    border-width: 1px;
+    border-radius: 10px;
+}
+
+%dark-bubble {
+    background-color: black;
+    border-color: #30363d;
+    border-style: solid;
+    border-width: 1px;
+    border-radius: 10px;
+}
+
+.background-theme {
+    background-color: $primary-theme;
+}
+
+.text-theme {
+    color: $text-color;
+}
+
+.login-input {
+    margin: 10px 0px;
+}
+
+.register-input {
+    margin: 10px 0px;
+}
+
+// Ladybug
+.brand-emblem {
+    width: 38px;
+    height: auto;
+}
+
+body {
+    background-color: $background;
+    color: $text-color;
+    overflow: hidden;
+}
+
+.navbar {
+    background-color: $nav-dark!important;
+}
+
+.container {
+    display: flex;
+}
+
+.center-well {
+    background-color: $background;
+}
+
+.left-well {
+    background-color: $primary-theme;
+    @extend %well;
+}
+
+.right-well {
+    background-color: $background;
+}
+
+
+div.center.bubble {
+    @extend %bubble;
+}
+
+.login-bubble {
+    @extend %dark-bubble;
+}
+
+input {
+    background-color: black!important;
+    color: white!important;
+}
+
+a.disabled {
+    pointer-events: none;
+    cursor: default;
+}
