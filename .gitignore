@@ -1,0 +1,11 @@
+# Ignore directories
+/BUGSTACKER/__pycache__
+/BUGSTACKER/migrations/__pycache__
+/issue_tracker/__pycache__
+
+# Ignore file types
+*.pyc
+*.css.map
+
+# Ignore files
+shell.txt

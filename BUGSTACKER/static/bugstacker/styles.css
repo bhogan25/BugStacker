@@ -1,0 +1,66 @@
+.left-well {
+  color: #E4E8EC;
+  border-color: #30363d;
+  border-style: solid;
+  border-width: 1px;
+}
+
+div.center.bubble {
+  background-color: #0D1117;
+  border-color: #30363d;
+  border-style: solid;
+  border-width: 1px;
+  border-radius: 10px;
+}
+
+.login-bubble {
+  background-color: black;
+  border-color: #30363d;
+  border-style: solid;
+  border-width: 1px;
+  border-radius: 10px;
+}
+
+.login-input {
+  margin: 10px 0px;
+}
+
+.register-input {
+  margin: 10px 0px;
+}
+
+.brand-emblem {
+  width: 38px;
+  height: auto;
+}
+
+body {
+  background-color: black;
+  color: #E4E8EC;
+  overflow: hidden;
+}
+
+.navbar {
+  background-color: #161B22 !important;
+}
+
+.container {
+  display: flex;
+}
+
+.center-well {
+  background-color: black;
+}
+
+.left-well {
+  background-color: #0D1117;
+}
+
+.right-well {
+  background-color: black;
+}
+
+input {
+  background-color: black !important;
+  color: white !important;
+}/*# sourceMappingURL=styles.css.map */

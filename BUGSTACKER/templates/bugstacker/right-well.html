@@ -1,0 +1,14 @@
+<div class="left pt-2 m-2 pb-2 px-4">
+    <div>
+        <div>Hello, <strong>{{ user.first_name }}</strong></div>
+        {% if user.projects_managed %}
+            <div>Projects Managed: {{ user.projects_managed.count }}</div>
+        {% elif user.projects_working %}
+            <div>Projects Working: {{ user.projects_working.count }}</div>
+        {% endif %}
+        
+        {% if user.tickets_assigned %}
+            <div>Tickets Assigned: {{ user.tickets_assigned.count }}</div>
+        {% endif %}
+    </div>
+</div>

@@ -1,0 +1,12 @@
+{% extends "BUGSTACKER/layout.html" %}
+
+{% block left %}
+    {% include "BUGSTACKER/project-left-well.html" with project=project %}
+{% endblock %}
+
+{% block body %}
+    <div class="pt-4 m-4 pb-2 px-4">
+        <h1>project-board.html</h1>
+        <p>{{ project.name }}</p>
+    </div>
+{% endblock %}
