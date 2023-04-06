@@ -39,17 +39,11 @@
                         Project Boards
                     </a>
                     <ul class="dropdown-menu">
-                        {% if user.projects_working or user.projects_managed %}
-                            {% for project in user.projects_managed.all %}
-                                <li><a class="dropdown-item" href="{% url 'project_board' project.code %}">{{ project.code }} - {{ project.name }}</a></li>
-                            {% empty %}
-                                {% for project in user.projects_working.all %}
-                                    <li><a class="dropdown-item" href="{% url 'project_board' project.code %}">{{ project.code }} - {{ project.name }}</a></li>
-                                {% endfor %}
-                            {% endfor %}
-                        {% else %}
-                            <li><a class="nav-link disabled">No Projects</a></li>
-                        {% endif %}
+                        {% for project in user.get_all_projects %}
+                            <li><a class="dropdown-item" href="{% url 'project_board' project.code %}">{{ project.name }}</a></li>
+                        {% empty %}
+                            <li><a class="nav-link disabled" style="color: black">No Projects</a></li>
+                        {% endfor %}
                     </ul>
                 </li>
                 
