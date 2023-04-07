@@ -1,9 +1,8 @@
 from django.db import models
+from django.db.models import Q
 from django.contrib.auth.models import AbstractUser
 from notifications.base.models import AbstractNotification
 
-
-# Create your models here.
 
 class User(AbstractUser):
     class Role(models.TextChoices):
@@ -22,9 +21,26 @@ class User(AbstractUser):
     # Get projects involved
     def get_all_projects(self):
         return self.projects_managed.all() if self.projects_managed.all() else self.projects_working.all()
-    
+  
     def __str__(self):
         return f"{self.username} ({self.role})"
+
+
+# Project QuerySet
+class ProjectQuerySet(models.QuerySet):
+
+    # Get active projects (active & incomplete)
+    def active(self):
+        return self.filter(status="A", completed=False)
+
+    # Get finished projects (inactive & complete)
+    def finished(self):
+        return self.filter(status="I", completed=True)
+    
+    # Get on hold projects (inactive & incomplete)
+    def on_hold(self):
+        return self.filter(status="I", completed=False)
+
 
 # Project
 class Project(models.Model):
@@ -44,12 +60,16 @@ class Project(models.Model):
             max_length=2,
         )
 
+    objects = ProjectQuerySet.as_manager()
+
     class Meta:
         ordering = ['created']
+    
+    # Change Request: change to return TicketQuerySet of all Project Tickets
 
     # Get open ticket count
-    def open_tickets(self):
-        return sum([workflow.tickets.count() for workflow in self.workflows.all()])
+    # def all_tickets(self):
+    #     return sum([workflow.tickets.count() for workflow in self.workflows.all()])
 
     # Get team members and pm
     def all_member_usernames(self):
@@ -57,6 +77,7 @@ class Project(models.Model):
     
     def __str__(self):
         return f"Project {self.code}"
+
 
 # Workflow
 class Workflow(models.Model):
@@ -73,6 +94,47 @@ class Workflow(models.Model):
     def __str__(self):
         return f"Workflow {self.project.code}-{self.code}"
 
+
+# Ticket QuerySet
+class TicketQuerySet(models.QuerySet):
+
+    # Get not_done tickets
+    def not_done(self):
+        return self.exclude(status="D")
+    
+    # Get tickets not started 
+    def not_started(self):
+        return self.filter(status="C")
+
+    # Get in progres tickets
+    def in_progress(self):
+        return self.filter(status="IP")
+
+    # Get high priority tickets
+    def high_priority(self):
+        return self.filter(priority=3)
+
+    # Get normal priority tickets
+    def normal_priority(self):
+        return self.filter(priority=2)
+
+    # Get low priority tickets
+    def low_priority(self):
+        return self.filter(priority=1)
+
+    # Get resolved tickets
+    def resolved(self):
+        return self.filter(status="D")
+    
+    # Get resolved & fixed tickets
+    def fixed(self):
+        return self.filter(status="D").filter(resolution="F")
+
+    # Get resolved and no issue tickets
+    def no_issue(self):
+        return self.filter(status="D").filter(resolution="NI")
+
+
 # Ticket
 class Ticket(models.Model):
     class Status(models.TextChoices):
@@ -83,7 +145,7 @@ class Ticket(models.Model):
     class Resolution(models.TextChoices):
         FIXED = "F"
         NO_ISSUE = "NI"
-        NOT_FIXED = "NF"
+        NOT_FIXED = "NF"                    # Remove choice
 
     class Priority(models.IntegerChoices):
         HIGH = 3
@@ -112,6 +174,8 @@ class Ticket(models.Model):
         max_length=2,
         null=True,
         )
+    
+    objects = TicketQuerySet.as_manager()
     
     class Meta:
         ordering = ['created']

@@ -1,0 +1,18 @@
+<h4>Current Projects</h4>
+<!-- active projects -->
+<div>Active Projects: {{ user.projects_managed.active.count }}</div>
+
+<!-- on hold projcts-->
+<div>Projects on Hold: {{ user.projects_managed.on_hold.count }}</div>
+
+
+<h4>Project History</h4>
+<!-- finished projects-->
+<div>Completed Projects: {{ user.projects_managed.finished.count }}</div>
+
+
+<h4>Tickets</h4>
+
+<!-- tickets assigned -->
+<div>Tickets Assigned: {{ user.tickets_assigned.count }}</div>
+

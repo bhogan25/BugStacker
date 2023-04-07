@@ -1,12 +1,12 @@
-<div class="left pt-2 m-2 pb-2 px-4">
-    <div>Hello, <strong>{{ user.first_name }}</strong></div>
-    {% if user.projects_managed %}
-        <div>Projects Managed: {{ user.projects_managed.count }}</div>
-    {% elif user.projects_working %}
-        <div>Projects Working: {{ user.projects_working.count }}</div>
-    {% endif %}
-    
-    {% if user.tickets_assigned %}
-        <div>Tickets Assigned: {{ user.tickets_assigned.count }}</div>
+<div class="pt-2 m-2 pb-2 px-4">
+    <h2>Hello, <strong>{{ user.first_name }}</strong></h2>
+    <div>Role: <strong>{{ user.role }}</strong></div>
+    <hr>
+
+    {% if user.role == "PM" %}
+        {% include "BUGSTACKER/right-well-pm.html" with user=user %}
+    {% elif user.role == "DEV" %}
+        {% include "BUGSTACKER/right-well-dev.html" with user=user %}
     {% endif %}
 </div>
+

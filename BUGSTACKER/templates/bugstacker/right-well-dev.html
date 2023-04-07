@@ -1,0 +1,39 @@
+<h4>Projects</h4>
+<!-- active Projects -->
+<div>Projects Working: {{ user.projects_working.count }}</div>
+
+
+<h4>Current Tickets (All Projects)</h4>
+<!-- tickets assigned & incompelete -->
+<div>Tickets Assigned: {{ user.tickets_assigned.all.not_done.count }}</div>
+
+<!-- tickets not started -->
+<div>In Created State: {{ user.tickets_assigned.all.not_started.count }}</div>
+
+<!-- tickets in working state -->
+<div>Working: {{ user.tickets_assigned.all.in_progress.count }}</div>
+
+<h4>Priority Distribution</h4>
+<!-- high priority tickets -->
+<div>High: {{ user.tickets_assigned.all.high_priority.count }}</div>
+
+<!-- normal priority tickets -->
+<div>Normal: {{ user.tickets_assigned.all.normal_priority.count }}</div>
+
+<!-- low priority tickets -->
+<div>Low: {{ user.tickets_assigned.all.low_priority.count }}</div>
+
+
+<h4>Ticket History</h4>
+<!-- ticktets resolved -->
+<div>Tickets Resolved: {{ user.tickets_assigned.all.resolved.count }}</div>
+
+<!-- tickets fixed -->
+<div>Fixed: {{ user.tickets_assigned.all.fixed.count }}</div>
+
+<!-- tickets no issue -->
+<div>No Issue: {{ user.tickets_assigned.all.no_issue.count }}</div>
+
+
+<!-- tickets created -->
+<div>Tickets Created: {{ user.tickets_created.count }}</div>
