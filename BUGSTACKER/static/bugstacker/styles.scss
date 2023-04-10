@@ -4,6 +4,13 @@ $nav-dark: #161B22;
 $text-color: #E4E8EC;
 $background: black;
 
+
+// $list-group-color:                  white;
+// $list-group-bg:                     var(--#{$prefix}body-bg);
+// $list-group-border-color:           var(--#{$prefix}border-color);
+// $list-group-border-width:           var(--#{$prefix}border-width);
+// $list-group-border-radius:          var(--#{$prefix}border-radius);
+
 %well {
     color: $text-color;
     border-color: #30363d;
@@ -53,6 +60,7 @@ body {
     background-color: $background;
     color: $text-color;
     overflow: hidden;
+    height: 100%;
 }
 
 .navbar {
@@ -61,6 +69,10 @@ body {
 
 .container {
     display: flex;
+}
+
+.main-content {
+    min-height: 100vh;
 }
 
 .center-well {
@@ -93,4 +105,11 @@ input {
 a.disabled {
     pointer-events: none;
     cursor: default;
+}
+
+.wf-code {
+    position: absolute;
+    top: 28px;
+    right: 20px;
+    font-size: smaller;
 }

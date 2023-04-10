@@ -5,8 +5,51 @@
 {% endblock %}
 
 {% block body %}
-    <div class="pt-4 m-4 pb-2 px-4">
-        <h1>project-board.html</h1>
-        <p>{{ project.name }}</p>
+    <nav class="mt-2" style="--bs-breadcrumb-divider: url(&#34;data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='8' height='8'%3E%3Cpath d='M2.5 0L1 1.5 3.5 4 1 6.5 2.5 8l4-4-4-4z' fill='%236c757d'/%3E%3C/svg%3E&#34;);" aria-label="breadcrumb">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a href="{% url 'index' %}">Projects</a></li>
+            <li class="breadcrumb-item active"><a href="{% url 'project_board' project.code %}"> {{ project.name }}</a></li>
+        </ol>
+    </nav>
+    <div class="mt-1 mx-4 mb-4 pt-2 px-4 pb-2">
+        <h1>{{ project.name }}</h1>
+        <div class="accordion" id="accordionExample">
+            <div class="accordion-item">
+              <h2 class="accordion-header">
+                <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseTwo" aria-expanded="false" aria-controls="collapseTwo">
+                    Project Information
+                </button>
+              </h2>
+              <div id="collapseTwo" class="accordion-collapse collapse" data-bs-parent="#accordionExample">
+                <div class="accordion-body">
+                    <div>Project Code: {{ project.code }}</div>
+                    <div>Started: {{ project.created }}</div>
+                    <div>Project Manager: {{ project.pm.full_name }}</div>
+                    <div>Team members: {{ project.team_members.count }}</div>
+                    <div>Status: {{ project.get_status_display }}</div>
+                    <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.</p>
+                </div>
+              </div>
+            </div>
+        </div>
+        <hr>
+        <div>
+            {% for ticket in project.all_tickets %}
+            <div class="center bubble pt-3 m-4 pb-2 px-4 rounded-3">
+                <h1>{{ ticket.name }}</h1>
+                <div>Ticket Code: {{ ticket.code }}</div>
+                <div>Workflow: {{ ticket.workflow.name }}</div>
+                <div>Priority: {{ ticket.get_priority_display }}</div>
+                <div>Status: {{ ticket.get_status_display }}</div>
+                <div>Created: {{ ticket.created }}</div>
+                <div>Created by: {{ ticket.creator }}</div>
+                <div>Target Complete: {{ ticket.target_complete }}</div>
+                <div>Assignees: {{ ticket.string_assignees }}</div>
+                <p>{{ ticket.description }}</p>
+            </div>
+            {% empty %}
+            <p>No Tickets...</p>
+            {% endfor %}
+        </div>
     </div>
 {% endblock %}

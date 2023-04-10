@@ -56,23 +56,14 @@
                     <a class="nav-link me-2" href="{% url 'logout'%}" style="color:white">Logout</a>
                 </li>
             </ul>
-            
-            <ul class="navbar-nav d-flex">
-                
-                {% if user.is_authenticated %}
-                    
-                {% else %}
-                    
-                {% endif %}
-            </ul>
           </div>
         </div>
       </nav>
 
-      <div class="containter row">
-        <div class="left-well col-md-3">{% block left %}{% endblock %}</div>
-        <div class="center-well col-md-6">{% block body %}{% endblock %}</div>
-        <div class="right-well col-md-3">{% block right %}{% endblock %}</div>
+      <div class="containter row main-content">
+        <div class="left-well col-lg-3">{% block left %}{% endblock %}</div>
+        <div class="center-well col-lg-6">{% block body %}{% endblock %}</div>
+        <div class="right-well col-lg-3">{% block right %}{% endblock %}</div>
     </div>
 </body>
 <footer>

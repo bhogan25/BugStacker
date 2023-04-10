@@ -81,13 +81,12 @@ def logout_view(request):
 
 @login_required
 def index(request):
-    if request.user.is_authenticated:
-        project_list = Project.objects.all()
+    if request.method == "GET":
+        # project_list = Project.objects.all().filter(pm=request.user.id)
+        project_list = request.user.get_all_projects()
         return render(request, 'BUGSTACKER/index.html', {
             "project_list": project_list,
         })
-    else:
-        return HttpResponseRedirect(reverse("login"))
 
 
 @login_required

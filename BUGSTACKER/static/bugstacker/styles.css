@@ -21,6 +21,14 @@ div.center.bubble {
   border-radius: 10px;
 }
 
+.background-theme {
+  background-color: #0D1117;
+}
+
+.text-theme {
+  color: #E4E8EC;
+}
+
 .login-input {
   margin: 10px 0px;
 }
@@ -38,6 +46,7 @@ body {
   background-color: black;
   color: #E4E8EC;
   overflow: hidden;
+  height: 100%;
 }
 
 .navbar {
@@ -46,6 +55,10 @@ body {
 
 .container {
   display: flex;
+}
+
+.main-content {
+  min-height: 100vh;
 }
 
 .center-well {
@@ -63,4 +76,16 @@ body {
 input {
   background-color: black !important;
   color: white !important;
+}
+
+a.disabled {
+  pointer-events: none;
+  cursor: default;
+}
+
+.wf-code {
+  position: absolute;
+  top: 28px;
+  right: 20px;
+  font-size: smaller;
 }/*# sourceMappingURL=styles.css.map */

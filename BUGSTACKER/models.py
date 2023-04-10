@@ -15,12 +15,15 @@ class User(AbstractUser):
         max_length=3,
     )
 
-    class Meta:
-        ordering = ['username']
+    # class Meta:
+    #     ordering = ['username']
 
     # Get projects involved
     def get_all_projects(self):
         return self.projects_managed.all() if self.projects_managed.all() else self.projects_working.all()
+    
+    def full_name(self):
+        return f"{self.first_name} {self.last_name}"
   
     def __str__(self):
         return f"{self.username} ({self.role})"
@@ -59,24 +62,27 @@ class Project(models.Model):
             default=Status.ACTIVE,
             max_length=2,
         )
+    # Add description field to project
 
     objects = ProjectQuerySet.as_manager()
 
-    class Meta:
-        ordering = ['created']
+    # class Meta:
+    #     ordering = ['created']
     
-    # Change Request: change to return TicketQuerySet of all Project Tickets
-
-    # Get open ticket count
-    # def all_tickets(self):
-    #     return sum([workflow.tickets.count() for workflow in self.workflows.all()])
+    # Get TicketQuerySet for all project's tickets
+    def all_tickets(self):
+        base = Ticket.objects.none()
+        
+        for workflow in self.workflows.all():
+            base = base.union(workflow.tickets.all())
+        return base
 
     # Get team members and pm
     def all_member_usernames(self):
         return [user.username for user in self.team_members.all()] + [self.pm.username]
     
     def __str__(self):
-        return f"Project {self.code}"
+        return f"{self.name}"
 
 
 # Workflow
@@ -88,8 +94,8 @@ class Workflow(models.Model):
     created = models.DateField(auto_now_add=True)
     archived = models.BooleanField(default=False, verbose_name="workflow archived")
 
-    class Meta:
-        ordering = ['created']
+    # class Meta:
+    #     ordering = ['created']
 
     def __str__(self):
         return f"Workflow {self.project.code}-{self.code}"
@@ -177,9 +183,15 @@ class Ticket(models.Model):
     
     objects = TicketQuerySet.as_manager()
     
-    class Meta:
-        ordering = ['created']
+    # class Meta:
+    #     ordering = ['created']
 
+    def string_assignees(self):
+        if self.assignees.all().count() > 0:
+            return ", ".join([user.full_name() for user in self.assignees.all()])
+        else:
+            return "None"
+    
     def __str__(self):
         return f"Ticket {self.workflow.project.code}-{self.workflow.code}-{self.code}"
 

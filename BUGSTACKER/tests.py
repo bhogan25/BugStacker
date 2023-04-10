@@ -357,7 +357,7 @@ class BugstackerTestCase(TestCase):
         self.assertEqual(on_hold_projects, 1)
 
 
-    # TicketQuerySet Methods
+    # TicketQuerySet Methods - Tested on all Workflow 4-0 Tickets
 
     # Test not_done method
     def test_TicketQuerySet_not_done(self):
