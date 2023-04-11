@@ -11,7 +11,7 @@
             <li class="breadcrumb-item active"><a href="{% url 'project_board' project.code %}"> {{ project.name }}</a></li>
         </ol>
     </nav>
-    <div class="mt-1 mx-4 mb-4 pt-2 px-4 pb-2">
+    <div class="mt-1 mx-4 mb-4 pt-2 px-4 pb-2 overflow-auto">
         <h1>{{ project.name }}</h1>
         <div class="accordion" id="accordionExample">
             <div class="accordion-item">
@@ -33,9 +33,9 @@
             </div>
         </div>
         <hr>
-        <div>
+        <div style="display: none">
             {% for ticket in project.all_tickets %}
-            <div class="center bubble pt-3 m-4 pb-2 px-4 rounded-3">
+            <div class="center bubble pt-3 my-4 pb-2 px-4 rounded-3">
                 <h1>{{ ticket.name }}</h1>
                 <div>Ticket Code: {{ ticket.code }}</div>
                 <div>Workflow: {{ ticket.workflow.name }}</div>
@@ -50,6 +50,36 @@
             {% empty %}
             <p>No Tickets...</p>
             {% endfor %}
+        </div>
+        <div style="display: block" class="bubble px-2 pt-2 border border-dark rounded-3">
+            <table class="mb-0 pb-0 table table-dark table-hover">
+                <thead>
+                    <tr class="table-dark">
+                        <th class="align-middle table-dark">Ticket Name</th>
+                        <th class="align-middle table-dark">#</th>
+                        <th class="align-middle table-dark">Workflow</th>
+                        <th class="align-middle table-dark">Priority</th>
+                        <th class="align-middle table-dark">Status</th>
+                        <th class="align-middle table-dark">Target Complete</th>
+                        <th class="align-middle table-dark">Assignees</th>
+                    </tr>
+                </thead>
+                    <tbody>
+                    {% for ticket in project.all_tickets %}
+                    <tr class="table-dark">
+                        <td class="table-dark">{{ ticket.name|truncatewords:4 }}</td>
+                        <td class="table-dark">{{ ticket.code }}</td>
+                        <td class="table-dark">{{ ticket.workflow.name|truncatewords:4 }}</td>
+                        <td class="table-dark">{{ ticket.get_priority_display }}</td>
+                        <td class="table-dark">{{ ticket.get_status_display }}</td>
+                        <td class="table-dark">{{ ticket.target_complete|date:"m/d/y" }}</td>
+                        <td class="table-dark">{{ ticket.string_assignees|truncatewords:4 }}</td>
+                    </tr>
+                    {% empty %}
+                    <p>No Tickets...</p>
+                    {% endfor %}
+                </tbody>
+            </table>
         </div>
     </div>
 {% endblock %}

@@ -113,3 +113,35 @@ a.disabled {
     right: 20px;
     font-size: smaller;
 }
+
+$table-rows: 3;
+$table-cols: 10;
+
+table {
+  @for $i from 1 through $table-rows {
+    tr:nth-child(#{$i}) {
+      @for $j from 1 through $table-cols {
+        th:nth-child(#{$j}) {
+          background-color: black;
+          }
+        td:nth-child(#{$j}) {
+          background-color: black;
+        }
+      }
+    }
+  }
+}
+
+.accordion-button {
+    background-color: #343a40; /* Set the background color of the button */
+    color: #fff; /* Set the text color of the button */
+}
+
+.accordion-button:not(.collapsed) {
+    background-color: #212529; /* Set the background color of the button when it's active */
+}
+
+.accordion-body {
+    background-color: #212529; /* Set the background color of the content */
+    color: #fff; /* Set the text color of the content */
+}
