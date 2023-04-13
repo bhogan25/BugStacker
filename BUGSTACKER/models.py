@@ -15,9 +15,6 @@ class User(AbstractUser):
         max_length=3,
     )
 
-    # class Meta:
-    #     ordering = ['username']
-
     # Get projects involved
     def get_all_projects(self):
         return self.projects_managed.all() if self.projects_managed.all() else self.projects_working.all()
@@ -57,6 +54,7 @@ class Project(models.Model):
     completed = models.BooleanField(default=False, verbose_name="project complete?")
     pm = models.ForeignKey('User', null=True, on_delete=models.SET_NULL, related_name='projects_managed')
     team_members = models.ManyToManyField(User, blank=True, related_name='projects_working')
+    description = models.TextField(max_length=500, default="N/A", verbose_name="project description")
     status = models.CharField(
             choices=Status.choices,
             default=Status.ACTIVE,
@@ -66,9 +64,6 @@ class Project(models.Model):
 
     objects = ProjectQuerySet.as_manager()
 
-    # class Meta:
-    #     ordering = ['created']
-    
     # Get TicketQuerySet for all project's tickets
     def all_tickets(self):
         base = Ticket.objects.none()
@@ -77,9 +72,14 @@ class Project(models.Model):
             base = base.union(workflow.tickets.all())
         return base
 
-    # Get team members and pm
-    def all_member_usernames(self):
-        return [user.username for user in self.team_members.all()] + [self.pm.username]
+    # Get User QuerySet of team members and pm
+    def all_members(self):
+        team_members = self.team_members.all()
+        pm = User.objects.filter(id=self.pm.id)
+
+        all_members = team_members | pm
+
+        return all_members
     
     def __str__(self):
         return f"{self.name}"
@@ -93,9 +93,6 @@ class Workflow(models.Model):
     description = models.TextField(max_length=500, verbose_name="workflow description")
     created = models.DateField(auto_now_add=True)
     archived = models.BooleanField(default=False, verbose_name="workflow archived")
-
-    # class Meta:
-    #     ordering = ['created']
 
     def __str__(self):
         return f"Workflow {self.project.code}-{self.code}"
@@ -183,9 +180,6 @@ class Ticket(models.Model):
     
     objects = TicketQuerySet.as_manager()
     
-    # class Meta:
-    #     ordering = ['created']
-
     def string_assignees(self):
         if self.assignees.all().count() > 0:
             return ", ".join([user.full_name() for user in self.assignees.all()])

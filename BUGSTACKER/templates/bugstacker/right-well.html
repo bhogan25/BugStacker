@@ -1,12 +1,13 @@
-<div class="pt-2 m-2 pb-2 px-4">
-    <h2>Hello, <strong>{{ user.first_name }}</strong></h2>
-    <div>Role: <strong>{{ user.role }}</strong></div>
-    <hr>
+<div class="right-well col-lg-3">
+    <div class="pt-2 m-2 pb-2 px-4">
+        <h2>Hello, <strong>{{ user.first_name }}</strong></h2>
+        <div>Role: <strong>{{ user.role }}</strong></div>
+        <hr>
 
-    {% if user.role == user.Role.PROJECT_MANAGER %}
-        {% include "BUGSTACKER/right-well-pm.html" with user=user %}
-    {% elif user.role == user.Role.DEVELOPER %}
-        {% include "BUGSTACKER/right-well-dev.html" with user=user %}
-    {% endif %}
+        {% if user.role == user.Role.PROJECT_MANAGER %}
+            {% include "BUGSTACKER/right-well-pm.html" with user=user %}
+        {% elif user.role == user.Role.DEVELOPER %}
+            {% include "BUGSTACKER/right-well-dev.html" with user=user %}
+        {% endif %}
+    </div>
 </div>
-

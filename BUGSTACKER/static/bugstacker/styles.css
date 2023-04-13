@@ -283,4 +283,18 @@ table tr:nth-child(3) td:nth-child(10) {
 .accordion-body {
   background-color: #212529; /* Set the background color of the content */
   color: #fff; /* Set the text color of the content */
+}
+
+.register::-moz-placeholder {
+  color: #474748;
+  opacity: 1; /* Firefox */
+}
+
+.register::placeholder {
+  color: #474748;
+  opacity: 1; /* Firefox */
+}
+
+.register {
+  color: #474748;
 }/*# sourceMappingURL=styles.css.map */

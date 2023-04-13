@@ -1,7 +1,7 @@
 import datetime
 from django.test import TestCase, Client
 from django.contrib.contenttypes.models import ContentType
-from .models import User, Project, Workflow, Ticket, Notification
+from .models import User, Project, Workflow, Ticket, Notification, ProjectQuerySet, TicketQuerySet
 
 
 class BugstackerTestCase(TestCase):
@@ -306,34 +306,41 @@ class BugstackerTestCase(TestCase):
 
     # Test user method get_all_projects for pm
     def test_get_all_projects_pm(self):
-        all_projects = User.objects.get(username='jan').get_all_projects()
+        all_projects = User.objects.get(username='jan').get_all_projects().count()
 
-        self.assertEqual(all_projects.count(), 1)
+        self.assertEqual(all_projects, 1)
 
     # Test user method get_all_projects for pm
     def test_get_all_projects_dev(self):
-        all_projects = User.objects.get(username='michael').get_all_projects()
+        all_projects = User.objects.get(username='michael').get_all_projects().count()
 
-        self.assertEqual(all_projects.count(), 1)
+        self.assertEqual(all_projects, 1)
 
     # Project Methods - Tested on Project(pk=1)
 
-    # Test project method all_member_usernames
-    def test_all_member_usernames(self):
-        all_members = Project.objects.get(pk=1).all_member_usernames()
+    # Test project method all_memebrs - return type
+    def test_all_memebrs_type(self):
+        all_members_type = type(Project.objects.get(pk=1).all_members())
 
-        self.assertEqual(len(all_members), 3)
+        self.assertEqual(all_members_type, type(User.objects.none()))
 
-    
-    # Change Requst: To be changed to return TicketQuerySet of all Project Tickets
-    
-    # Test project all_tickets method
-    # def test_all_tickets(self):
-    #     all_tickets = Project.objects.get(pk=1).all_tickets()
+    # Test project method all_members - count
+    def test_all_members(self):
+        all_members = Project.objects.get(pk=1).all_members().count()
 
-    #     self.assertEqual(all_tickets, 3)
+        self.assertEqual(all_members, 3)
 
+    # Test project all_tickets method - result type
+    def test_all_tickets_type(self):
+        set_type = Project.objects.get(pk=1).all_tickets()
 
+        self.assertEqual(type(set_type), TicketQuerySet)
+
+    # Test project all_tickets method - number of tickets returned
+    def test_all_tickets_count(self):
+        ticket_count = Project.objects.get(pk=1).all_tickets().count()
+
+        self.assertEqual(ticket_count, 3)
 
 
     # ProjectQuerySet Methods - Tested on all Projects

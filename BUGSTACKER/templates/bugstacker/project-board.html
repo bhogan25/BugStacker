@@ -1,85 +1,149 @@
 {% extends "BUGSTACKER/layout.html" %}
+{% load static %}
+
+{% block script %}
+    <script type="text/babel" src="{% static 'BUGSTACKER/project.js' %}"></script>
+{% endblock %}
 
 {% block left %}
     {% include "BUGSTACKER/project-left-well.html" with project=project %}
 {% endblock %}
 
 {% block body %}
-    <nav class="mt-2" style="--bs-breadcrumb-divider: url(&#34;data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='8' height='8'%3E%3Cpath d='M2.5 0L1 1.5 3.5 4 1 6.5 2.5 8l4-4-4-4z' fill='%236c757d'/%3E%3C/svg%3E&#34;);" aria-label="breadcrumb">
-        <ol class="breadcrumb">
-            <li class="breadcrumb-item"><a href="{% url 'index' %}">Projects</a></li>
-            <li class="breadcrumb-item active"><a href="{% url 'project_board' project.code %}"> {{ project.name }}</a></li>
-        </ol>
-    </nav>
-    <div class="mt-1 mx-4 mb-4 pt-2 px-4 pb-2 overflow-auto">
-        <h1>{{ project.name }}</h1>
-        <div class="accordion" id="accordionExample">
-            <div class="accordion-item">
-              <h2 class="accordion-header">
-                <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseTwo" aria-expanded="false" aria-controls="collapseTwo">
-                    Project Information
-                </button>
-              </h2>
-              <div id="collapseTwo" class="accordion-collapse collapse" data-bs-parent="#accordionExample">
-                <div class="accordion-body">
-                    <div>Project Code: {{ project.code }}</div>
-                    <div>Started: {{ project.created }}</div>
-                    <div>Project Manager: {{ project.pm.full_name }}</div>
-                    <div>Team members: {{ project.team_members.count }}</div>
-                    <div>Status: {{ project.get_status_display }}</div>
-                    <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.</p>
+
+    <!-- Modal -->
+    <div class="modal fade" id="exampleModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content bg-dark border border-primary">
+                <div class="modal-header">
+                    <h1 class="modal-title fs-5" id="exampleModalLabel">New Ticket</h1>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
-              </div>
+                <div class="modal-body">
+                    <form action="{% url 'project_board' project.code %}" method="post">
+                        {% csrf_token %}
+                        {{ form }}
+                        <input type="submit" value="Create Ticket" />
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                    <button type="button" class="btn btn-primary">Save changes</button>
+                </div>
             </div>
-        </div>
-        <hr>
-        <div style="display: none">
-            {% for ticket in project.all_tickets %}
-            <div class="center bubble pt-3 my-4 pb-2 px-4 rounded-3">
-                <h1>{{ ticket.name }}</h1>
-                <div>Ticket Code: {{ ticket.code }}</div>
-                <div>Workflow: {{ ticket.workflow.name }}</div>
-                <div>Priority: {{ ticket.get_priority_display }}</div>
-                <div>Status: {{ ticket.get_status_display }}</div>
-                <div>Created: {{ ticket.created }}</div>
-                <div>Created by: {{ ticket.creator }}</div>
-                <div>Target Complete: {{ ticket.target_complete }}</div>
-                <div>Assignees: {{ ticket.string_assignees }}</div>
-                <p>{{ ticket.description }}</p>
-            </div>
-            {% empty %}
-            <p>No Tickets...</p>
-            {% endfor %}
-        </div>
-        <div style="display: block" class="bubble px-2 pt-2 border border-dark rounded-3">
-            <table class="mb-0 pb-0 table table-dark table-hover">
-                <thead>
-                    <tr class="table-dark">
-                        <th class="align-middle table-dark">Ticket Name</th>
-                        <th class="align-middle table-dark">#</th>
-                        <th class="align-middle table-dark">Workflow</th>
-                        <th class="align-middle table-dark">Priority</th>
-                        <th class="align-middle table-dark">Status</th>
-                        <th class="align-middle table-dark">Target Complete</th>
-                        <th class="align-middle table-dark">Assignees</th>
-                    </tr>
-                </thead>
-                    <tbody>
-                    {% for ticket in project.all_tickets %}
-                    <tr class="table-dark">
-                        <td class="table-dark">{{ ticket.name|truncatewords:4 }}</td>
-                        <td class="table-dark">{{ ticket.code }}</td>
-                        <td class="table-dark">{{ ticket.workflow.name|truncatewords:4 }}</td>
-                        <td class="table-dark">{{ ticket.get_priority_display }}</td>
-                        <td class="table-dark">{{ ticket.get_status_display }}</td>
-                        <td class="table-dark">{{ ticket.target_complete|date:"m/d/y" }}</td>
-                        <td class="table-dark">{{ ticket.string_assignees|truncatewords:4 }}</td>
-                    </tr>
-                    {% empty %}
-                    <p>No Tickets...</p>
-                    {% endfor %}
-                </tbody>
-            </table>
         </div>
     </div>
+
+    <div class="center-well col-lg-6">
+
+        <!-- breadcrumb -->
+        <nav class="mt-2 ms-2" style="--bs-breadcrumb-divider: url(&#34;data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='8' height='8'%3E%3Cpath d='M2.5 0L1 1.5 3.5 4 1 6.5 2.5 8l4-4-4-4z' fill='%236c757d'/%3E%3C/svg%3E&#34;);" aria-label="breadcrumb">
+            <ol class="breadcrumb">
+                <li class="breadcrumb-item"><a href="{% url 'index' %}">Projects</a></li>
+                <li class="breadcrumb-item active"><a href="{% url 'project_board' project.code %}">{{ project.name }}</a></li>
+            </ol>
+        </nav>
+
+        <div class="mt-1 mx-4 mb-4 pt-2 px-4 pb-2 overflow-auto">
+            <h1 class="text-start">{{ project.name }}</h1>
+            <div class="d-flex">
+
+                <!-- tools -->
+                <div class="d-block">
+                    <p>
+                        <a class="text-start p-2" data-bs-toggle="collapse" data-bs-target="#collapseExample" aria-expanded="false" aria-controls="collapseExample" style="text-decoration: none;">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" class="bi bi-info-square-fill" viewBox="0 0 16 16">
+                                <path d="M0 2a2 2 0 0 1 2-2h12a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2V2zm8.93 4.588-2.29.287-.082.38.45.083c.294.07.352.176.288.469l-.738 3.468c-.194.897.105 1.319.808 1.319.545 0 1.178-.252 1.465-.598l.088-.416c-.2.176-.492.246-.686.246-.275 0-.375-.193-.304-.533L8.93 6.588zM8 5.5a1 1 0 1 0 0-2 1 1 0 0 0 0 2z"/>
+                            </svg>
+                        </a>
+                        <a class="text-primary ms-auto p-2" data-bs-toggle="modal" data-bs-target="#exampleModal">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" class="bi bi-plus-square" viewBox="0 0 16 16">
+                                <path d="M14 1a1 1 0 0 1 1 1v12a1 1 0 0 1-1 1H2a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1h12zM2 0a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V2a2 2 0 0 0-2-2H2z"/>
+                                <path d="M8 4a.5.5 0 0 1 .5.5v3h3a.5.5 0 0 1 0 1h-3v3a.5.5 0 0 1-1 0v-3h-3a.5.5 0 0 1 0-1h3v-3A.5.5 0 0 1 8 4z"/>
+                            </svg>
+                        </a>
+                    </p>
+
+                    
+
+                    <div class="collapse" id="collapseExample">
+                        <div class="bg-dark card card-body">
+                            <div>Project Code: {{ project.code }}</div>
+                            <div>Started: {{ project.created }}</div>
+                            <div>Project Manager: {{ project.pm.full_name }}</div>
+                            <div>Team members: {{ project.team_members.count }}</div>
+                            <div>Status: {{ project.get_status_display }}</div>
+                            <p>
+                                Lorem ipsum dolor sit amet, consectetur adipiscing elit, 
+                                sed do eiusmod tempor incididunt ut labore et dolore magna 
+                                aliqua. Ut enim ad minim veniam, quis nostrud exercitation 
+                                ullamco laboris nisi ut aliquip ex ea commodo consequat. 
+                                Duis aute irure dolor in reprehenderit in voluptate velit 
+                                esse cillum dolore eu fugiat nulla pariatur. Excepteur sint 
+                                occaecat cupidatat non proident, sunt in culpa qui officia 
+                                deserunt mollit anim id est laborum.
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <hr>
+            <!-- ticket cards -->
+            <div style="display: none">
+                {% for ticket in project.all_tickets %}
+                <div class="center bubble pt-3 my-4 pb-2 px-4 rounded-3">
+                    <h1>{{ ticket.name }}</h1>
+                    <div>Ticket Code: {{ ticket.code }}</div>
+                    <div>Workflow: {{ ticket.workflow.name }}</div>
+                    <div>Priority: {{ ticket.get_priority_display }}</div>
+                    <div>Status: {{ ticket.get_status_display }}</div>
+                    <div>Created: {{ ticket.created }}</div>
+                    <div>Created by: {{ ticket.creator }}</div>
+                    <div>Target Complete: {{ ticket.target_complete }}</div>
+                    <div>Assignees: {{ ticket.string_assignees }}</div>
+                    <p>{{ ticket.description }}</p>
+                </div>
+                {% empty %}
+                <p>No Tickets...</p>
+                {% endfor %}
+            </div>
+
+            <!-- ticket table -->
+            <div style="display: block" class="bubble px-2 pt-2 border border-dark rounded-3">
+                <table class="mb-0 pb-0 table table-dark table-hover">
+                    <thead>
+                        <tr class="table-dark">
+                            <th class="align-middle table-dark">Ticket Name</th>
+                            <th class="align-middle table-dark">#</th>
+                            <th class="align-middle table-dark">Workflow</th>
+                            <th class="align-middle table-dark">Priority</th>
+                            <th class="align-middle table-dark">Status</th>
+                            <th class="align-middle table-dark">Target Complete</th>
+                            <th class="align-middle table-dark">Assignees</th>
+                        </tr>
+                    </thead>
+                        <tbody>
+                        {% for ticket in project.all_tickets %}
+                        <tr class="table-dark">
+                            <td class="table-dark">{{ ticket.name|truncatewords:4 }}</td>
+                            <td class="table-dark">{{ ticket.code }}</td>
+                            <td class="table-dark">{{ ticket.workflow.name|truncatewords:4 }}</td>
+                            <td class="table-dark">{{ ticket.get_priority_display }}</td>
+                            <td class="table-dark">{{ ticket.get_status_display }}</td>
+                            <td class="table-dark">{{ ticket.target_complete|date:"m/d/y" }}</td>
+                            <td class="table-dark">{{ ticket.string_assignees|truncatewords:4 }}</td>
+                        </tr>
+                        {% empty %}
+                        <p>No Tickets...</p>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+    
+{% endblock %}
+
+{% block right %}
+    {% include "BUGSTACKER/project-right-well.html" with project=project %}
 {% endblock %}

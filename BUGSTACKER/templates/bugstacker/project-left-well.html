@@ -1,9 +1,9 @@
-<div class="pt-2 m-2 pb-2 px-4 overflow-y-auto">
-    <h3>Workflows</h3>
-    <hr>
-    <ol class="list-group">
-        {% for workflow in project.workflows.all %}
-            
+<div class="left-well col-lg-3">
+    <div class="pt-2 m-2 pb-2 px-4 overflow-y-auto">
+        <h3>Workflows</h3>
+        <hr>
+        <ol class="list-group">
+            {% for workflow in project.workflows.all %}
                 <li class="list-group-item list-group-item-dark d-flex justify-content-between align-items-start position-relative">
                     <div class="ms-2 me-auto">
                         {% if workflow.archived == False %}
@@ -21,8 +21,8 @@
                     {% endif %}
                     <div class="wf-code">Code: 0{{ workflow.code }}</div>
                 </li>
-            
-        {% empty %}
-            <span class="fs-6 text-muted">No Workflows</span>
-        {% endfor %}    
+            {% empty %}
+                <span class="fs-6 text-muted">No Workflows</span>
+            {% endfor %}
+    </div>
 </div>

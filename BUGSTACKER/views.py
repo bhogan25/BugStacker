@@ -1,5 +1,6 @@
 import json
 from django.shortcuts import render, get_object_or_404
+from django.http import Http404
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.decorators import login_required
 from django.db import IntegrityError
@@ -7,6 +8,8 @@ from django.http import HttpResponse, HttpResponseRedirect, JsonResponse
 from django.urls import reverse
 from .models import User, Project, Workflow, Ticket, Notification
 from django.views.decorators.csrf import csrf_exempt
+from .forms import NewTicketForm
+from django import forms
 
 
 
@@ -91,8 +94,25 @@ def index(request):
 
 @login_required
 def project_board(request, project_code):
-    project = Project.objects.get(code=project_code)
-    return render(request, 'BUGSTACKER/project-board.html', {
-        "project": project,
-    })
+    if request.method == "POST":
+        pass
+    else:
+
+        # Get Project if exists
+        project = get_object_or_404(Project, code=project_code)
+
+        # Return view if project in user
+        if project in request.user.get_all_projects():
+            
+            # New Ticket Form
+            form = NewTicketForm()
+            form.fields.get('workflow').queryset = project.workflows.all()
+            form.fields.get('assignees').queryset = project.all_members()
+            
+            return render(request, 'BUGSTACKER/project-board.html', {
+                "project": project,
+                "form": form,
+            })
+        else:
+            raise Http404("We couldn't find that project!")
 

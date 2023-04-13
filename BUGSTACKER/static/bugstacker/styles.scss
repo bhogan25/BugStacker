@@ -2,6 +2,7 @@ $primary-theme: #0D1117;
 $secondary-theme: rgb(172, 0, 0);
 $nav-dark: #161B22;
 $text-color: #E4E8EC;
+$text-color-dim: #474748;
 $background: black;
 
 
@@ -144,4 +145,13 @@ table {
 .accordion-body {
     background-color: #212529; /* Set the background color of the content */
     color: #fff; /* Set the text color of the content */
+}
+
+.register::placeholder {
+    color: $text-color-dim;
+    opacity: 1; /* Firefox */
+}
+
+.register {
+    color: $text-color-dim;
 }
