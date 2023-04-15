@@ -6,35 +6,59 @@
 {% endblock %}
 
 {% block left %}
-    {% include "BUGSTACKER/project-left-well.html" with project=project %}
+    {% include "BUGSTACKER/project-left-well.html" with user=user project=project %}
 {% endblock %}
 
 {% block body %}
 
-    <!-- Modal -->
-    <div class="modal fade" id="exampleModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
-        <div class="modal-dialog">
-            <div class="modal-content bg-dark border border-primary">
-                <div class="modal-header">
-                    <h1 class="modal-title fs-5" id="exampleModalLabel">New Ticket</h1>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                </div>
-                <div class="modal-body">
-                    <form action="{% url 'project_board' project.code %}" method="post">
-                        {% csrf_token %}
-                        {{ form }}
-                        <input type="submit" value="Create Ticket" />
-                    </form>
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-                    <button type="button" class="btn btn-primary">Save changes</button>
+    <div class="center-well col-lg-6">
+        <!-- Ticket Form Modal -->
+        <div class="modal fade" id="ticketFormModal" tabindex="-1" aria-labelledby="ticketFormModalLabel" aria-hidden="true">
+            <div class="modal-dialog">
+                <div class="modal-content bg-dark border border-primary">
+                    <div class="modal-header">
+                        <h1 class="modal-title fs-5" id="ticketFormModalLabel">New Ticket</h1>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body">
+                        <form action="{% url 'project_board' project.code %}" method="post">
+                            {% csrf_token %}
+                            {{ ticket_form }}
+                            
+                            <div class="modal-footer">
+                                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                                <input type="submit" class="btn btn-primary" value="Create Ticket" />
+                            </div>
+                        </form>
+                    </div>
                 </div>
             </div>
         </div>
-    </div>
 
-    <div class="center-well col-lg-6">
+        <!-- Workflow Form Modal -->
+        <div class="modal fade" id="workflowFormModal" tabindex="-1" aria-labelledby="workflowFormModalLabel" aria-hidden="true">
+            <div class="modal-dialog">
+                <div class="modal-content bg-dark border border-primary">
+                    <div class="modal-header">
+                        <h1 class="modal-title fs-5" id="workflowFormModalLabel">New Workflow</h1>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body">
+                        <form action="{% url 'project_board' project.code %}" method="post">
+                            {% csrf_token %}
+                            {{ workflow_form }}
+                            
+                            <div class="modal-footer">
+                                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                                <input type="submit" class="btn btn-primary" value="Create Workflow" />
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        
 
         <!-- breadcrumb -->
         <nav class="mt-2 ms-2" style="--bs-breadcrumb-divider: url(&#34;data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='8' height='8'%3E%3Cpath d='M2.5 0L1 1.5 3.5 4 1 6.5 2.5 8l4-4-4-4z' fill='%236c757d'/%3E%3C/svg%3E&#34;);" aria-label="breadcrumb">
@@ -49,17 +73,22 @@
             <div class="d-flex">
 
                 <!-- tools -->
-                <div class="d-block">
+                <div class="d-block tools">
                     <p>
                         <a class="text-start p-2" data-bs-toggle="collapse" data-bs-target="#collapseExample" aria-expanded="false" aria-controls="collapseExample" style="text-decoration: none;">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" class="bi bi-info-square-fill" viewBox="0 0 16 16">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" style="stroke: rgba(0, 0, 0, 0)" class="bi bi-info-square-fill tool" viewBox="0 0 16 16">
                                 <path d="M0 2a2 2 0 0 1 2-2h12a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2V2zm8.93 4.588-2.29.287-.082.38.45.083c.294.07.352.176.288.469l-.738 3.468c-.194.897.105 1.319.808 1.319.545 0 1.178-.252 1.465-.598l.088-.416c-.2.176-.492.246-.686.246-.275 0-.375-.193-.304-.533L8.93 6.588zM8 5.5a1 1 0 1 0 0-2 1 1 0 0 0 0 2z"/>
                             </svg>
                         </a>
-                        <a class="text-primary ms-auto p-2" data-bs-toggle="modal" data-bs-target="#exampleModal">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" class="bi bi-plus-square" viewBox="0 0 16 16">
-                                <path d="M14 1a1 1 0 0 1 1 1v12a1 1 0 0 1-1 1H2a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1h12zM2 0a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V2a2 2 0 0 0-2-2H2z"/>
-                                <path d="M8 4a.5.5 0 0 1 .5.5v3h3a.5.5 0 0 1 0 1h-3v3a.5.5 0 0 1-1 0v-3h-3a.5.5 0 0 1 0-1h3v-3A.5.5 0 0 1 8 4z"/>
+                        <a class="text-primary ms-auto p-2" data-bs-toggle="modal" data-bs-target="#ticketFormModal">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" class="bi bi-sticky tool" viewBox="0 0 16 16">
+                                <path d="M2.5 1A1.5 1.5 0 0 0 1 2.5v11A1.5 1.5 0 0 0 2.5 15h6.086a1.5 1.5 0 0 0 1.06-.44l4.915-4.914A1.5 1.5 0 0 0 15 8.586V2.5A1.5 1.5 0 0 0 13.5 1h-11zM2 2.5a.5.5 0 0 1 .5-.5h11a.5.5 0 0 1 .5.5V8H9.5A1.5 1.5 0 0 0 8 9.5V14H2.5a.5.5 0 0 1-.5-.5v-11zm7 11.293V9.5a.5.5 0 0 1 .5-.5h4.293L9 13.793z"/>
+                            </svg>
+                        </a>
+                        <a class="text-primary ms-auto p-2" data-bs-toggle="modal" data-bs-target="#workflowFormModal">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" class="bi bi-stack tool" viewBox="0 0 16 16">
+                                <path d="m14.12 10.163 1.715.858c.22.11.22.424 0 .534L8.267 15.34a.598.598 0 0 1-.534 0L.165 11.555a.299.299 0 0 1 0-.534l1.716-.858 5.317 2.659c.505.252 1.1.252 1.604 0l5.317-2.66zM7.733.063a.598.598 0 0 1 .534 0l7.568 3.784a.3.3 0 0 1 0 .535L8.267 8.165a.598.598 0 0 1-.534 0L.165 4.382a.299.299 0 0 1 0-.535L7.733.063z"/>
+                                <path d="m14.12 6.576 1.715.858c.22.11.22.424 0 .534l-7.568 3.784a.598.598 0 0 1-.534 0L.165 7.968a.299.299 0 0 1 0-.534l1.716-.858 5.317 2.659c.505.252 1.1.252 1.604 0l5.317-2.659z"/>
                             </svg>
                         </a>
                     </p>
@@ -89,7 +118,7 @@
             </div>
             <hr>
             <!-- ticket cards -->
-            <div style="display: none">
+            <div style="display: block">
                 {% for ticket in project.all_tickets %}
                 <div class="center bubble pt-3 my-4 pb-2 px-4 rounded-3">
                     <h1>{{ ticket.name }}</h1>
@@ -109,7 +138,7 @@
             </div>
 
             <!-- ticket table -->
-            <div style="display: block" class="bubble px-2 pt-2 border border-dark rounded-3">
+            <div style="display: block" class="bubble px-2 pt-2 border border-dark rounded-3 overflow-x-auto">
                 <table class="mb-0 pb-0 table table-dark table-hover">
                     <thead>
                         <tr class="table-dark">
@@ -145,5 +174,5 @@
 {% endblock %}
 
 {% block right %}
-    {% include "BUGSTACKER/project-right-well.html" with project=project %}
+    {% include "BUGSTACKER/project-right-well.html" with user=user project=project %}
 {% endblock %}

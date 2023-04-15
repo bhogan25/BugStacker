@@ -364,15 +364,30 @@ class BugstackerTestCase(TestCase):
         self.assertEqual(on_hold_projects, 1)
 
 
+    # WorkflowQuerySet Methods - Tested on Project 4
+
+    # Test active method - count
+    def test_WorkflowQuerySet_active(self):
+        active = Project.objects.get(code=4).workflows.all().active().count()
+
+        self.assertEqual(active, 1)
+
+    # Test archived method - count
+    def test_WorkflowQuerySet_archived(self):
+        archived = Project.objects.get(code=4).workflows.all().archived().count()
+
+        self.assertEqual(archived, 1)
+
+
     # TicketQuerySet Methods - Tested on all Workflow 4-0 Tickets
 
-    # Test not_done method
-    def test_TicketQuerySet_not_done(self):
-        not_done = Workflow.objects.get(
+    # Test open method
+    def test_TicketQuerySet_closed(self):
+        open = Workflow.objects.get(
             name="TicketQuerySet Tests Nonarchived Workflow"
-        ).tickets.all().not_done().count()
+        ).tickets.all().open().count()
 
-        self.assertEqual(not_done, 2)
+        self.assertEqual(open, 2)
 
     # Test not_started method
     def test_TicketQuerySet_not_started(self):

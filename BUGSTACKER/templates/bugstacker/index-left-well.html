@@ -3,12 +3,12 @@
         <h3 class="d-flex">Projects</h3>
         <hr>
         <div class="d-flex align-items-stretch">
-            <ol class="list-group">
+            <ol class="project-list">
                 {% for project in user.get_all_projects %}
                     {% if project.status == "A" %}
-                    <div class="mt-2 rounded-1 background-theme text-theme border border-dark-subtle list-group-item list-group-item-action">
+                    <a class="mt-2 rounded-1 background-theme text-theme border border-dark-subtle list-group-item list-group-item-action" href="#project-list-item-{{ project.code }}">
                         {{ project.name }} ({{ project.code }})
-                    </div>
+                    </a>
                     {% endif %}
                 {% empty %}
                     <span class="fs-6">No projects</span>

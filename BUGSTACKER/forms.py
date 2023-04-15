@@ -1,6 +1,19 @@
 from django import forms
-from .models import Ticket
+from .models import Ticket, Workflow
 
+
+class NewWorkflowForm(forms.ModelForm,):
+    class Meta:
+        model = Workflow
+        fields = [
+            'name',
+            'description',
+        ]
+
+        widgets = {
+            'name': forms.TextInput(attrs={'class': 'form-control'}),
+            'description': forms.Textarea(attrs={'class': 'form-control', 'rows': '3'}),
+        }
 
 class NewTicketForm(forms.ModelForm,):
     class Meta:

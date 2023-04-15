@@ -6,27 +6,29 @@
 
 {% block body %}
     <div class="center-well col-lg-6">
-        {% for project in project_list %}
-            <div class="center bubble pt-3 m-4 pb-2 px-4 rounded-3 position-relative">
-                <h1>{{ project.name }}</h1>
-                <div>Project Code: {{ project.code }}</div>
-                <div>Started: {{ project.created }}</div>
-                <div>Project Manager: {{ project.pm.full_name }}</div>
-                <div>Team members: {{ project.team_members.count }}</div>
-                <div>Status: {{ project.get_status_display }}</div>
-                <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.</p>
-                <a href="{% url 'project_board' project.code %}" class="position-absolute top-0 end-0 me-4 mt-3">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" stroke="grey" stroke-width="0.5" fill="currentColor" class="bi bi-box-arrow-up-right" viewBox="0 0 16 16">
-                        <path fill-rule="evenodd" d="M8.636 3.5a.5.5 0 0 0-.5-.5H1.5A1.5 1.5 0 0 0 0 4.5v10A1.5 1.5 0 0 0 1.5 16h10a1.5 1.5 0 0 0 1.5-1.5V7.864a.5.5 0 0 0-1 0V14.5a.5.5 0 0 1-.5.5h-10a.5.5 0 0 1-.5-.5v-10a.5.5 0 0 1 .5-.5h6.636a.5.5 0 0 0 .5-.5z"/>
-                        <path fill-rule="evenodd" d="M16 .5a.5.5 0 0 0-.5-.5h-5a.5.5 0 0 0 0 1h3.793L6.146 9.146a.5.5 0 1 0 .708.708L15 1.707V5.5a.5.5 0 0 0 1 0v-5z"/>
-                    </svg>
-                </a>
-            </div>
-        {% endfor %}
+        <div data-bs-spy="scroll" data-bs-target="#project-list" data-bs-smooth-scroll="true" class="scrollspy" tabindex="0">
+            {% for project in project_list %}
+                <div class="center bubble pt-3 m-4 pb-2 px-4 rounded-3 position-relative">
+                    <h1 id="project-list-item-{{ project.code }}">{{ project.name }}</h1>
+                    <div>Project Code: {{ project.code }}</div>
+                    <div>Started: {{ project.created }}</div>
+                    <div>Project Manager: {{ project.pm.full_name }}</div>
+                    <div>Team members: {{ project.team_members.count }}</div>
+                    <div>Status: {{ project.get_status_display }}</div>
+                    <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.</p>
+                    <a href="{% url 'project_board' project.code %}" class="position-absolute top-0 end-0 me-4 mt-3">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" stroke="grey" stroke-width="0.5" fill="currentColor" class="bi bi-box-arrow-up-right tool" viewBox="0 0 16 16">
+                            <path fill-rule="evenodd" d="M8.636 3.5a.5.5 0 0 0-.5-.5H1.5A1.5 1.5 0 0 0 0 4.5v10A1.5 1.5 0 0 0 1.5 16h10a1.5 1.5 0 0 0 1.5-1.5V7.864a.5.5 0 0 0-1 0V14.5a.5.5 0 0 1-.5.5h-10a.5.5 0 0 1-.5-.5v-10a.5.5 0 0 1 .5-.5h6.636a.5.5 0 0 0 .5-.5z"/>
+                            <path fill-rule="evenodd" d="M16 .5a.5.5 0 0 0-.5-.5h-5a.5.5 0 0 0 0 1h3.793L6.146 9.146a.5.5 0 1 0 .708.708L15 1.707V5.5a.5.5 0 0 0 1 0v-5z"/>
+                        </svg>
+                    </a>
+                </div>
+            {% endfor %}
+        </div>
     </div>
 {% endblock %}
 
 
 {% block right %}
-    {% include "BUGSTACKER/right-well.html" with user=user %}
+    {% include "BUGSTACKER/index-right-well.html" with user=user %}
 {% endblock %}

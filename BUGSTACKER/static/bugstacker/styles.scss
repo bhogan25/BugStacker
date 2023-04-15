@@ -2,15 +2,32 @@ $primary-theme: #0D1117;
 $secondary-theme: rgb(172, 0, 0);
 $nav-dark: #161B22;
 $text-color: #E4E8EC;
-$text-color-dim: #474748;
+$text-color-dim: #c8c8c9;
 $background: black;
+$prefix: 'list-group';
 
 
-// $list-group-color:                  white;
-// $list-group-bg:                     var(--#{$prefix}body-bg);
-// $list-group-border-color:           var(--#{$prefix}border-color);
-// $list-group-border-width:           var(--#{$prefix}border-width);
-// $list-group-border-radius:          var(--#{$prefix}border-radius);
+.list-group-item-dark {
+    --bs-list-group-color: white!important;
+    --bs-list-group-bg: black!important;
+    --bs-list-group-border-color: var(--bs-dark-border-subtle);
+    --bs-list-group-action-hover-color: var(--bs-emphasis-color);
+    --bs-list-group-action-hover-bg: var(--bs-dark-border-subtle);
+    --bs-list-group-action-active-color: var(--bs-emphasis-color);
+    --bs-list-group-action-active-bg: var(--bs-dark-border-subtle);
+    --bs-list-group-active-color: var(--bs-dark-bg-subtle);
+    --bs-list-group-active-bg: var(--bs-dark-text-emphasis);
+    --bs-list-group-active-border-color: var(--bs-dark-text-emphasis);
+}
+
+
+strong.archived-tag {
+    color: $secondary-theme;
+}
+
+.rounded-pill {
+    background-color: $secondary-theme;
+}
 
 %well {
     color: $text-color;
@@ -61,11 +78,29 @@ body {
     background-color: $background;
     color: $text-color;
     overflow: hidden;
-    height: 100%;
+    height: 100vh;
+    width: 100vw;
 }
 
 .navbar {
     background-color: $nav-dark!important;
+}
+
+.navbar-brand {
+    padding-top: var(--bs-navbar-brand-padding-y);
+    padding-bottom: var(--bs-navbar-brand-padding-y);
+    margin-right: var(--bs-navbar-brand-margin-end);
+    font-size: 2em;
+    color: var($text-color);
+    text-decoration: none;
+    white-space: nowrap;
+    text-overflow: clip;
+    letter-spacing: 3px;
+    text-shadow: -4px 0 1px $secondary-theme, 4px 0 1px blue;
+}
+
+a.navbar-brand:hover {
+    color: $text-color-dim;
 }
 
 .container {
@@ -73,7 +108,29 @@ body {
 }
 
 .main-content {
-    min-height: 100vh;
+    max-height: 100vh;
+    max-width: 100vw;
+}
+
+::-webkit-scrollbar {
+    width: 10px;
+    height: 10px;
+    position:-ms-page;
+    right: 5;
+    z-index: 9999; /* Set the z-index to a high value to ensure it overlaps other elements */
+}
+
+::-webkit-scrollbar-thumb {
+    background-color: $text-color-dim;
+    border-radius: 5px;
+}
+
+::-webkit-scrollbar-track {
+    background-color: $primary-theme;
+}
+
+::-webkit-scrollbar-button {
+    height: 0px;
 }
 
 .center-well {
@@ -103,19 +160,19 @@ input {
     color: white!important;
 }
 
-a.disabled {
-    pointer-events: none;
-    cursor: default;
-}
+// a.disabled {
+//     pointer-events: none;
+//     cursor: default;
+// }
 
 .wf-code {
     position: absolute;
-    top: 28px;
+    top: 30px;
     right: 20px;
     font-size: smaller;
 }
 
-$table-rows: 3;
+$table-rows: 3000;
 $table-cols: 10;
 
 table {
@@ -154,4 +211,26 @@ table {
 
 .register {
     color: $text-color-dim;
+}
+
+.tools > p > a {
+    text-decoration: none;
+}
+
+svg.tool {
+    fill: blue;
+    stroke: blue;
+    height: 23px;
+    width: 23px;
+}
+
+svg.tool:hover {
+    fill: $secondary-theme;
+    stroke: $secondary-theme;
+    height: 25px;
+    width: 25px;
+}
+
+a:hover {
+    color: $secondary-theme;
 }

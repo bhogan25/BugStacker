@@ -60,7 +60,6 @@ class Project(models.Model):
             default=Status.ACTIVE,
             max_length=2,
         )
-    # Add description field to project
 
     objects = ProjectQuerySet.as_manager()
 
@@ -69,7 +68,7 @@ class Project(models.Model):
         base = Ticket.objects.none()
         
         for workflow in self.workflows.all():
-            base = base.union(workflow.tickets.all())
+            base = base | workflow.tickets.all()
         return base
 
     # Get User QuerySet of team members and pm
@@ -85,6 +84,17 @@ class Project(models.Model):
         return f"{self.name}"
 
 
+# Workflow QuerySet
+class WorkflowQuerySet(models.QuerySet):
+    
+    # Get Active workflows
+    def active(self):
+        return self.filter(archived=False)
+
+    # Get Archived workflows
+    def archived(self):
+        return self.filter(archived=True)
+
 # Workflow
 class Workflow(models.Model):
     project = models.ForeignKey('Project', on_delete=models.CASCADE, related_name="workflows")
@@ -94,6 +104,8 @@ class Workflow(models.Model):
     created = models.DateField(auto_now_add=True)
     archived = models.BooleanField(default=False, verbose_name="workflow archived")
 
+    objects = WorkflowQuerySet.as_manager()
+
     def __str__(self):
         return f"Workflow {self.project.code}-{self.code}"
 
@@ -101,8 +113,8 @@ class Workflow(models.Model):
 # Ticket QuerySet
 class TicketQuerySet(models.QuerySet):
 
-    # Get not_done tickets
-    def not_done(self):
+    # Get open tickets
+    def open(self):
         return self.exclude(status="D")
     
     # Get tickets not started 
@@ -148,7 +160,7 @@ class Ticket(models.Model):
     class Resolution(models.TextChoices):
         FIXED = "F"
         NO_ISSUE = "NI"
-        NOT_FIXED = "NF"                    # Remove choice
+        NOT_FIXED = "NF"
 
     class Priority(models.IntegerChoices):
         HIGH = 3
@@ -164,20 +176,20 @@ class Ticket(models.Model):
     target_complete = models.DateField(null=True)
     created = models.DateTimeField(auto_now_add=True)
     priority = models.PositiveSmallIntegerField(
-        choices=Priority.choices, 
+        choices=Priority.choices,
         default=Priority.NORMAL,
         )
     status = models.CharField(
-        choices=Status.choices, 
-        default=Status.CREATED, 
+        choices=Status.choices,
+        default=Status.CREATED,
         max_length=2,
         )
     resolution = models.CharField(
-        choices=Resolution.choices, 
+        choices=Resolution.choices,
         max_length=2,
         null=True,
         )
-    
+
     objects = TicketQuerySet.as_manager()
     
     def string_assignees(self):

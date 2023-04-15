@@ -1,12 +1,33 @@
-
-
-<!-- collapse -->
-<div class="col-lg-3">
-    <div class="pt-2 m-2 pb-2 px-4 overflow-y-auto">
+<div class="col-lg-3 mb-5">
+    <div class="pt-2 m-2 pb-2 px-4">
         <h2>Hello, <strong>{{ user.first_name }}</strong></h2>
         <div>Role: <strong>{{ user.role }}</strong></div>
         <hr>
-        <h2>Project Information</h2>
-        
+        <h2 class="mt-3">Project Insights</h2>
+        <hr>
+        <h4>Workflows</h4>
+        <div>Workflows: {{ project.workflows.count }}</div>
+        <ul>
+            <li>Active: {{ project.workflows.active.count }}</li>
+            <li>Archived: {{ project.workflows.archived.count }}</li>
+        </ul>
+        <h4>Tickets</h4>
+        <div>Tickets Open: {{ project.all_tickets.open.count }}</div>
+        <ul>
+            <li>Create State: {{ project.all_tickets.not_started.count }}</li>
+            <li>In Progress: {{ project.all_tickets.in_progress.count }}</li>
+        </ul>
+        <div>Tickets Resolved: {{ project.all_tickets.resolved.count }}</div>
+        <ul>
+            <li>Marked Fixed: {{ project.all_tickets.fixed.count }}</li>
+            <li>Marked No Issue: {{ project.all_tickets.no_issue.count }}</li>
+        </ul>
+        <h2 class="mt-4">User Insights</h2>
+        <hr>
+        {% if user.role == user.Role.PROJECT_MANAGER %}
+            {% include "BUGSTACKER/right-well-pm.html" with user=user %}
+        {% elif user.role == user.Role.DEVELOPER %}
+            {% include "BUGSTACKER/right-well-dev.html" with user=user %}
+        {% endif %}
     </div>
 </div>

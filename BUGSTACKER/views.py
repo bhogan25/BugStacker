@@ -8,7 +8,7 @@ from django.http import HttpResponse, HttpResponseRedirect, JsonResponse
 from django.urls import reverse
 from .models import User, Project, Workflow, Ticket, Notification
 from django.views.decorators.csrf import csrf_exempt
-from .forms import NewTicketForm
+from .forms import NewTicketForm, NewWorkflowForm
 from django import forms
 
 
@@ -94,24 +94,91 @@ def index(request):
 
 @login_required
 def project_board(request, project_code):
+    # Get Project if exists
+    project = get_object_or_404(Project, code=project_code)
+    
     if request.method == "POST":
-        pass
+
+        # Collect Post request data
+        q_dict = request.POST
+        
+        
+        # Check which form is being submitted (workflow | ticket)
+        if len(q_dict) == len(NewTicketForm.Meta.fields) + 1:
+
+            print("----------- NEW TICKET FORM -----------")
+            
+            # Create new ticket instance
+            ticket_form = NewTicketForm(request.POST)
+            
+            # Clean Model Form and Model Validation
+            if ticket_form.is_valid():
+
+                # Create ticket instance
+                new_ticket = ticket_form.save(commit=False)
+
+                # Populate private fields
+                new_ticket.code = new_ticket.workflow.tickets.count() + 1
+                new_ticket.creator = request.user
+                new_ticket.resolution = Ticket.Resolution.NOT_FIXED
+
+                # Save new instance and many-to-many data
+                new_ticket.save()
+                ticket_form.save_m2m()
+
+                return HttpResponseRedirect(reverse("project_board", args=(project_code,)))
+
+            else:
+                raise Http404("Submitted data invalid.")
+
+        # If form is Workflow
+        elif len(q_dict) == len(NewWorkflowForm.Meta.fields) + 1:
+
+            print("----------- NEW WORKFLOW FORM -----------")
+            
+            # Create new workflow instance
+            workflow_form = NewWorkflowForm(request.POST)
+
+            # Clean Model Form and Model Validation
+            if workflow_form.is_valid():
+
+                # Create ticket instance
+                new_workflow = workflow_form.save(commit=False)
+
+                # Populate private fields
+                new_workflow.project = project
+                new_workflow.code = project.workflows.count() + 1
+                new_workflow.archived = False
+
+                # Save new instance
+                new_workflow.save()
+
+                return HttpResponseRedirect(reverse("project_board", args=(project_code,)))
+
+            else:
+                raise Http404("Submitted data invalid.")
+        
+        else:
+            raise Http404("Submitted data invalid")
+
+    # GET Requests
     else:
-
-        # Get Project if exists
-        project = get_object_or_404(Project, code=project_code)
-
+        
         # Return view if project in user
         if project in request.user.get_all_projects():
-            
+
             # New Ticket Form
-            form = NewTicketForm()
-            form.fields.get('workflow').queryset = project.workflows.all()
-            form.fields.get('assignees').queryset = project.all_members()
+            ticket_form = NewTicketForm()
+            ticket_form.fields.get('workflow').queryset = project.workflows.all()
+            ticket_form.fields.get('assignees').queryset = project.all_members()
+
+            # New Workflow Form
+            workflow_form = NewWorkflowForm()
             
             return render(request, 'BUGSTACKER/project-board.html', {
                 "project": project,
-                "form": form,
+                "ticket_form": ticket_form,
+                "workflow_form": workflow_form,
             })
         else:
             raise Http404("We couldn't find that project!")

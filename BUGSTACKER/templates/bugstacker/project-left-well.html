@@ -9,15 +9,15 @@
                         {% if workflow.archived == False %}
                         <h5 class="fw-bold my-2">{{ workflow.name }}</h5>
                         {% else %}
-                        <h5 class="fw-bold my-2"><strong>Archived</strong>: {{ workflow.name }}</h5>
+                        <h5 class="fw-bold my-2"><strong class="archived-tag">Archived</strong> - {{ workflow.name }}</h5>
                         {% endif %}
                         <p class="mb-1">{{ workflow.description }}</p>
-                        <div class="fw-light fs-6">{{ workflow.created }}</div>
+                        <div class="fw-light fs-6 text-body-color">Started {{ workflow.created }}</div>
                     </div>
                     {% if workflow.tickets.count == 1 %}
-                    <span class="badge bg-danger rounded-pill">{{ workflow.tickets.count }} Ticket</span>
+                    <span class="badge rounded-pill ticket-pill">{{ workflow.tickets.count }} Ticket</span>
                     {% else %}
-                    <span class="badge bg-danger rounded-pill">{{ workflow.tickets.count }} Tickets</span>
+                    <span class="badge rounded-pill ticket-pill">{{ workflow.tickets.count }} Tickets</span>
                     {% endif %}
                     <div class="wf-code">Code: 0{{ workflow.code }}</div>
                 </li>
