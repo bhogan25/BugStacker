@@ -54,7 +54,7 @@ class Project(models.Model):
     completed = models.BooleanField(default=False, verbose_name="project complete?")
     pm = models.ForeignKey('User', null=True, on_delete=models.SET_NULL, related_name='projects_managed')
     team_members = models.ManyToManyField(User, blank=True, related_name='projects_working')
-    description = models.TextField(max_length=500, default="N/A", verbose_name="project description")
+    description = models.TextField(max_length=500, default="", verbose_name="project description")
     status = models.CharField(
             choices=Status.choices,
             default=Status.ACTIVE,

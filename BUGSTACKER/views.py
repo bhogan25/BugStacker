@@ -8,7 +8,7 @@ from django.http import HttpResponse, HttpResponseRedirect, JsonResponse
 from django.urls import reverse
 from .models import User, Project, Workflow, Ticket, Notification
 from django.views.decorators.csrf import csrf_exempt
-from .forms import NewTicketForm, NewWorkflowForm
+from .forms import NewTicketForm, NewWorkflowForm, NewProjectForm
 from django import forms
 
 
@@ -84,11 +84,50 @@ def logout_view(request):
 
 @login_required
 def index(request):
+    if request.method == "POST":
+        
+        project_form = NewProjectForm(request.POST)
+
+        # Verify and clean form data
+        if project_form.is_valid():
+
+            # Create project instance
+            project = project_form.save(commit=False)
+            
+            project.code = Project.objects.all().count() + 1
+            project.completed = False
+            project.pm = request.user
+            project.status = Project.Status.ACTIVE
+
+            print("-----------NEW PROJECT SUBMITTED-----------")
+
+        else:
+            raise Http404("Submitted data invalid.")
+
+
+
+    
     if request.method == "GET":
-        # project_list = Project.objects.all().filter(pm=request.user.id)
+        # Get all user projects
         project_list = request.user.get_all_projects()
+
+        # NewProjectForm setup
+        if request.user.role == "PM":
+
+            project_form = NewProjectForm()
+
+            # Get all devs
+            devs = User.objects.filter(role="DEV")
+
+            # Set queryset for team_members
+            project_form.fields.get('team_members').queryset = devs
+        
+        else:
+            project_form = None
+
         return render(request, 'BUGSTACKER/index.html', {
             "project_list": project_list,
+            "project_form": project_form,
         })
 
 

@@ -1,6 +1,21 @@
 from django import forms
-from .models import Ticket, Workflow
+from .models import Ticket, Workflow, Project
 
+
+class NewProjectForm(forms.ModelForm):
+    class Meta:
+        model = Project
+        fields = [
+            'name',
+            'description',
+            'team_members',
+        ]
+
+        widgets = {
+            'name': forms.TextInput(attrs={'class': 'form-control'}),
+            'description': forms.Textarea(attrs={'class': 'form-control', 'rows': '3', 'placeholder': 'Project description'}),
+            'team_members': forms.SelectMultiple(attrs={'class': 'form-control'})
+        }
 
 class NewWorkflowForm(forms.ModelForm,):
     class Meta:

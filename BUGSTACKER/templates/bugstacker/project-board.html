@@ -2,7 +2,8 @@
 {% load static %}
 
 {% block script %}
-    <script type="text/babel" src="{% static 'BUGSTACKER/project.js' %}"></script>
+{% comment %}type="text/babel"{% endcomment %}
+    <script src="{% static 'BUGSTACKER/project.js' %}"></script>
 {% endblock %}
 
 {% block left %}
@@ -11,8 +12,8 @@
 
 {% block body %}
 
-    <div class="center-well col-lg-6">
-        <!-- Ticket Form Modal -->
+    <div class="center-well col-xxl-6">
+        {% comment %}<!-- Ticket Form Modal -->{% endcomment %}
         <div class="modal fade" id="ticketFormModal" tabindex="-1" aria-labelledby="ticketFormModalLabel" aria-hidden="true">
             <div class="modal-dialog">
                 <div class="modal-content bg-dark border border-primary">
@@ -35,7 +36,7 @@
             </div>
         </div>
 
-        <!-- Workflow Form Modal -->
+        {% comment %}<!-- Workflow Form Modal -->{% endcomment %}
         <div class="modal fade" id="workflowFormModal" tabindex="-1" aria-labelledby="workflowFormModalLabel" aria-hidden="true">
             <div class="modal-dialog">
                 <div class="modal-content bg-dark border border-primary">
@@ -58,9 +59,8 @@
             </div>
         </div>
 
-        
 
-        <!-- breadcrumb -->
+        {% comment %}<!-- breadcrumb -->{% endcomment %}
         <nav class="mt-2 ms-2" style="--bs-breadcrumb-divider: url(&#34;data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='8' height='8'%3E%3Cpath d='M2.5 0L1 1.5 3.5 4 1 6.5 2.5 8l4-4-4-4z' fill='%236c757d'/%3E%3C/svg%3E&#34;);" aria-label="breadcrumb">
             <ol class="breadcrumb">
                 <li class="breadcrumb-item"><a href="{% url 'index' %}">Projects</a></li>
@@ -72,35 +72,45 @@
             <h1 class="text-start">{{ project.name }}</h1>
             <div class="d-flex">
 
-                <!-- tools -->
-                <div class="d-block tools">
-                    <p>
-                        <a class="text-start p-2" data-bs-toggle="collapse" data-bs-target="#collapseExample" aria-expanded="false" aria-controls="collapseExample" style="text-decoration: none;">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" style="stroke: rgba(0, 0, 0, 0)" class="bi bi-info-square-fill tool" viewBox="0 0 16 16">
-                                <path d="M0 2a2 2 0 0 1 2-2h12a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2V2zm8.93 4.588-2.29.287-.082.38.45.083c.294.07.352.176.288.469l-.738 3.468c-.194.897.105 1.319.808 1.319.545 0 1.178-.252 1.465-.598l.088-.416c-.2.176-.492.246-.686.246-.275 0-.375-.193-.304-.533L8.93 6.588zM8 5.5a1 1 0 1 0 0-2 1 1 0 0 0 0 2z"/>
-                            </svg>
-                        </a>
-                        <a class="text-primary ms-auto p-2" data-bs-toggle="modal" data-bs-target="#ticketFormModal">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" class="bi bi-sticky tool" viewBox="0 0 16 16">
-                                <path d="M2.5 1A1.5 1.5 0 0 0 1 2.5v11A1.5 1.5 0 0 0 2.5 15h6.086a1.5 1.5 0 0 0 1.06-.44l4.915-4.914A1.5 1.5 0 0 0 15 8.586V2.5A1.5 1.5 0 0 0 13.5 1h-11zM2 2.5a.5.5 0 0 1 .5-.5h11a.5.5 0 0 1 .5.5V8H9.5A1.5 1.5 0 0 0 8 9.5V14H2.5a.5.5 0 0 1-.5-.5v-11zm7 11.293V9.5a.5.5 0 0 1 .5-.5h4.293L9 13.793z"/>
-                            </svg>
-                        </a>
-                        <a class="text-primary ms-auto p-2" data-bs-toggle="modal" data-bs-target="#workflowFormModal">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" class="bi bi-stack tool" viewBox="0 0 16 16">
-                                <path d="m14.12 10.163 1.715.858c.22.11.22.424 0 .534L8.267 15.34a.598.598 0 0 1-.534 0L.165 11.555a.299.299 0 0 1 0-.534l1.716-.858 5.317 2.659c.505.252 1.1.252 1.604 0l5.317-2.66zM7.733.063a.598.598 0 0 1 .534 0l7.568 3.784a.3.3 0 0 1 0 .535L8.267 8.165a.598.598 0 0 1-.534 0L.165 4.382a.299.299 0 0 1 0-.535L7.733.063z"/>
-                                <path d="m14.12 6.576 1.715.858c.22.11.22.424 0 .534l-7.568 3.784a.598.598 0 0 1-.534 0L.165 7.968a.299.299 0 0 1 0-.534l1.716-.858 5.317 2.659c.505.252 1.1.252 1.604 0l5.317-2.659z"/>
-                            </svg>
-                        </a>
-                    </p>
+                {% comment %}<!-- tools -->{% endcomment %}
+                <div class="d-flex flex-wrap tools">
+                        <div class="tool-bin my-2">
+                            <a class="p-2" data-bs-toggle="collapse" data-bs-target="#projectInfo" aria-expanded="false" aria-controls="collapseExample" style="text-decoration: none;">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" style="stroke: rgba(0, 0, 0, 0)" class="bi bi-info-square-fill tool" viewBox="0 0 16 16">
+                                    <path d="M0 2a2 2 0 0 1 2-2h12a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2V2zm8.93 4.588-2.29.287-.082.38.45.083c.294.07.352.176.288.469l-.738 3.468c-.194.897.105 1.319.808 1.319.545 0 1.178-.252 1.465-.598l.088-.416c-.2.176-.492.246-.686.246-.275 0-.375-.193-.304-.533L8.93 6.588zM8 5.5a1 1 0 1 0 0-2 1 1 0 0 0 0 2z"/>
+                                </svg>
+                            </a>
+                        </div>
+                        <div class="tool-bin my-2">
+                            <a class="ms-auto p-2" data-bs-toggle="collapse" data-bs-target="#projectTeam" aria-expanded="false" aria-controls="collapseExample" style="text-decoration: none;">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" class="bi bi-people-fill tool" viewBox="0 0 16 16">
+                                    <path d="M7 14s-1 0-1-1 1-4 5-4 5 3 5 4-1 1-1 1H7Zm4-6a3 3 0 1 0 0-6 3 3 0 0 0 0 6Zm-5.784 6A2.238 2.238 0 0 1 5 13c0-1.355.68-2.75 1.936-3.72A6.325 6.325 0 0 0 5 9c-4 0-5 3-5 4s1 1 1 1h4.216ZM4.5 8a2.5 2.5 0 1 0 0-5 2.5 2.5 0 0 0 0 5Z"/>
+                                </svg>
+                            </a>
+                        </div>
+                        <div class="my-2">
+                            <a class="text-primary ms-auto p-2" data-bs-toggle="modal" data-bs-target="#ticketFormModal">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" class="bi bi-sticky tool" viewBox="0 0 16 16">
+                                    <path d="M2.5 1A1.5 1.5 0 0 0 1 2.5v11A1.5 1.5 0 0 0 2.5 15h6.086a1.5 1.5 0 0 0 1.06-.44l4.915-4.914A1.5 1.5 0 0 0 15 8.586V2.5A1.5 1.5 0 0 0 13.5 1h-11zM2 2.5a.5.5 0 0 1 .5-.5h11a.5.5 0 0 1 .5.5V8H9.5A1.5 1.5 0 0 0 8 9.5V14H2.5a.5.5 0 0 1-.5-.5v-11zm7 11.293V9.5a.5.5 0 0 1 .5-.5h4.293L9 13.793z"/>
+                                </svg>
+                            </a>
+                        </div>
+                        <div class="my-2">
+                            <a class="text-primary ms-auto p-2" data-bs-toggle="modal" data-bs-target="#workflowFormModal">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" class="bi bi-stack tool" viewBox="0 0 16 16">
+                                    <path d="m14.12 10.163 1.715.858c.22.11.22.424 0 .534L8.267 15.34a.598.598 0 0 1-.534 0L.165 11.555a.299.299 0 0 1 0-.534l1.716-.858 5.317 2.659c.505.252 1.1.252 1.604 0l5.317-2.66zM7.733.063a.598.598 0 0 1 .534 0l7.568 3.784a.3.3 0 0 1 0 .535L8.267 8.165a.598.598 0 0 1-.534 0L.165 4.382a.299.299 0 0 1 0-.535L7.733.063z"/>
+                                    <path d="m14.12 6.576 1.715.858c.22.11.22.424 0 .534l-7.568 3.784a.598.598 0 0 1-.534 0L.165 7.968a.299.299 0 0 1 0-.534l1.716-.858 5.317 2.659c.505.252 1.1.252 1.604 0l5.317-2.659z"/>
+                                </svg>
+                            </a>
+                        </div>
 
-                    
-
-                    <div class="collapse" id="collapseExample">
+                    {% comment %}<!-- Project Info -->{% endcomment %}
+                    <div class="collapse w-100 my-2" id="projectInfo">
                         <div class="bg-dark card card-body">
+                            <h4>Project Information</h4>
                             <div>Project Code: {{ project.code }}</div>
                             <div>Started: {{ project.created }}</div>
                             <div>Project Manager: {{ project.pm.full_name }}</div>
-                            <div>Team members: {{ project.team_members.count }}</div>
                             <div>Status: {{ project.get_status_display }}</div>
                             <p>
                                 Lorem ipsum dolor sit amet, consectetur adipiscing elit, 
@@ -114,17 +124,30 @@
                             </p>
                         </div>
                     </div>
+
+                    {% comment %}<!-- Team Members -->{% endcomment %}
+                    <div class="collapse w-100 my-2" id="projectTeam">
+                        <div class="bg-dark card card-body">
+                            <h4>Project Team</h4>
+                            <ul>
+                                {% for member in project.all_members.all %}
+                                    <li>{{ member.full_name }} - {{ member.role }}</li>
+                                {% endfor %}
+                            </ul>
+                        </div>
+                    </div>
+
                 </div>
             </div>
             <hr>
-            <!-- ticket cards -->
+            {% comment %}<!-- Ticket cards -->{% endcomment %}
             <div style="display: block">
                 {% for ticket in project.all_tickets %}
-                <div class="center bubble pt-3 my-4 pb-2 px-4 rounded-3">
+                <div class="ticket-card center bubble pt-3 my-4 pb-2 px-4 rounded-3" id="t_{{ ticket.code }}">
                     <h1>{{ ticket.name }}</h1>
                     <div>Ticket Code: {{ ticket.code }}</div>
                     <div>Workflow: {{ ticket.workflow.name }}</div>
-                    <div>Priority: {{ ticket.get_priority_display }}</div>
+                    <div>Priority: <span class="priority-{{ ticket.priority }}">{{ ticket.get_priority_display }}</span></div>
                     <div>Status: {{ ticket.get_status_display }}</div>
                     <div>Created: {{ ticket.created }}</div>
                     <div>Created by: {{ ticket.creator }}</div>
@@ -137,7 +160,7 @@
                 {% endfor %}
             </div>
 
-            <!-- ticket table -->
+            {% comment %}<!-- Ticket table -->{% endcomment %}
             <div style="display: block" class="bubble px-2 pt-2 border border-dark rounded-3 overflow-x-auto">
                 <table class="mb-0 pb-0 table table-dark table-hover">
                     <thead>
@@ -157,7 +180,7 @@
                             <td class="table-dark">{{ ticket.name|truncatewords:4 }}</td>
                             <td class="table-dark">{{ ticket.code }}</td>
                             <td class="table-dark">{{ ticket.workflow.name|truncatewords:4 }}</td>
-                            <td class="table-dark">{{ ticket.get_priority_display }}</td>
+                            <td class="table-dark priority-{{ ticket.priority }}">{{ ticket.get_priority_display }}</td>
                             <td class="table-dark">{{ ticket.get_status_display }}</td>
                             <td class="table-dark">{{ ticket.target_complete|date:"m/d/y" }}</td>
                             <td class="table-dark">{{ ticket.string_assignees|truncatewords:4 }}</td>
