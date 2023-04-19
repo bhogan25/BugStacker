@@ -1,46 +1,85 @@
 // Execute after content has been loaded
 document.addEventListener('DOMContentLoaded', function () {
   
-  // // Boostrap Modal
+  // Boostrap Modal
   // const myModal = document.getElementById('myModal')
   // const myInput = document.getElementById('myInput')
   //   myModal.addEventListener('shown.bs.modal', () => {
   //   myInput.focus()
   // })
 
-  // Add color to task cards
-  // cards = document.querySelectorAll(".ticket-card")
+  const tableViewBtn = document.getElementById('tableViewBtn');
+  const cardViewBtn = document.getElementById('cardViewBtn');
 
-  // cards.forEach((e) => {
-  //   if (parseInt(e.dataset.priority) === 1) {
-  //     e.style.color = "yellow";
-  //   } else if (parseInt(e.dataset.priority) === 2) {
-  //     e.style.color = "orange";
-  //   } else if (parseInt(e.dataset.priority) === 3) {
-  //     e.style.color = "red";
-  //   }
-  // })
-  
-
-  // Add color to task table rows
+  const table = document.getElementById('ticketTable');
+  const cards = document.getElementById('ticketCards');
 
 
+  tableViewBtn.onclick = function(event) {
+    event.preventDefault()
+
+    // Hide table btn & hide cards
+    // tableViewBtn.style.display = 'none';
+    setAllDisplayProps(tableViewBtn, 'none');
+    cards.style.display = 'none';
+
+    // Show card btn and show table
+    // cardViewBtn.style.display = 'block';
+    setAllDisplayProps(cardViewBtn, 'inline');
+    table.style.display = 'block';
+    
+  }
+
+  cardViewBtn.onclick = function(event) {
+    event.preventDefault()
+
+    // Hide card btn & hide table
+    // cardViewBtn.style.display = 'none';
+    setAllDisplayProps(cardViewBtn, 'none');
+    table.style.display = 'none';
+
+    // Show table btn & show cards
+    // tableViewBtn.style.display = 'block';
+    setAllDisplayProps(tableViewBtn, 'inline');
+    cards.style.display = 'block';
+  }
 
 })
 
 
 
+function setAllDisplayProps(element, display) {
 
+  const displays = [
+    'inline',
+    'block',
+    'flex',
+    'grid',
+    'inline-block',
+    'inline-flex',
+    'inline-grid',
+    'none',
+  ]
 
+  // Check arguments
+  if (!(element instanceof HTMLElement) & !(element instanceof SVGElement)) {
+    throw new Error('Element must be an instance of an "HTMLElement" or "SVGElement.');
+  }
 
+  if (typeof display !== 'string') {
+    throw new Error('display property must be a string.');
+  }
 
+  if (!displays.includes(display)) {
+    throw new Error(`display type "${display}" not allowed.`);
+  }
 
-// function ProjectBoard() {
-//   return (
-//       <div>
-//           Hello!
-//       </div>
-//   );
-// }
+  // Set target element display
+  element.style.display = display;
 
-// ReactDOM.render(< />, document.querySelector("#"));
+  const children = element.children;
+
+  for (let i = 0; i < children.length; i++) {
+    setAllDisplayProps(children[i], display)
+  }
+}
