@@ -2,8 +2,8 @@
 {% load static %}
 
 {% block script %}
-{% comment %}type="text/babel"{% endcomment %}
-    <script src="{% static 'BUGSTACKER/project.js' %}"></script>
+{% comment %} type="text/babel" if the JS uses REACT {% endcomment %}
+    <script type="module" src="{% static 'BUGSTACKER/project.js' %}"></script>
 {% endblock %}
 
 {% block left %}

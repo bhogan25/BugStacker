@@ -1,6 +1,8 @@
 // Execute after content has been loaded
+import { setAllDisplayProps } from './helpers.js';
+
 document.addEventListener('DOMContentLoaded', function () {
-  
+
   // Boostrap Modal
   // const myModal = document.getElementById('myModal')
   // const myInput = document.getElementById('myInput')
@@ -8,9 +10,14 @@ document.addEventListener('DOMContentLoaded', function () {
   //   myInput.focus()
   // })
 
+
+  // Toggle Task View Mode
+
+  // Get card and table buttons
   const tableViewBtn = document.getElementById('tableViewBtn');
   const cardViewBtn = document.getElementById('cardViewBtn');
 
+  // Get containers for Table and Cards
   const table = document.getElementById('ticketTable');
   const cards = document.getElementById('ticketCards');
 
@@ -27,7 +34,6 @@ document.addEventListener('DOMContentLoaded', function () {
     // cardViewBtn.style.display = 'block';
     setAllDisplayProps(cardViewBtn, 'inline');
     table.style.display = 'block';
-    
   }
 
   cardViewBtn.onclick = function(event) {
@@ -43,43 +49,4 @@ document.addEventListener('DOMContentLoaded', function () {
     setAllDisplayProps(tableViewBtn, 'inline');
     cards.style.display = 'block';
   }
-
 })
-
-
-
-function setAllDisplayProps(element, display) {
-
-  const displays = [
-    'inline',
-    'block',
-    'flex',
-    'grid',
-    'inline-block',
-    'inline-flex',
-    'inline-grid',
-    'none',
-  ]
-
-  // Check arguments
-  if (!(element instanceof HTMLElement) & !(element instanceof SVGElement)) {
-    throw new Error('Element must be an instance of an "HTMLElement" or "SVGElement.');
-  }
-
-  if (typeof display !== 'string') {
-    throw new Error('display property must be a string.');
-  }
-
-  if (!displays.includes(display)) {
-    throw new Error(`display type "${display}" not allowed.`);
-  }
-
-  // Set target element display
-  element.style.display = display;
-
-  const children = element.children;
-
-  for (let i = 0; i < children.length; i++) {
-    setAllDisplayProps(children[i], display)
-  }
-}
