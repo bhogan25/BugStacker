@@ -20,6 +20,10 @@
                     <span class="badge rounded-pill ticket-pill">{{ workflow.tickets.count }} Tickets</span>
                     {% endif %}
                     <div class="wf-code">Code: 0{{ workflow.code }}</div>
+                    {% if workflow.archived == False %}
+                    <button class="manageWorkflowBtn" data-action="archive" data-project="{{ project.code }}" data-target="{{ workflow.code }}">Archive</button>
+                    {% endif %}
+
                 </li>
             {% empty %}
                 <span class="fs-6 text-muted">No Workflows</span>

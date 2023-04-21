@@ -23,7 +23,7 @@ class User(AbstractUser):
         return f"{self.first_name} {self.last_name}"
   
     def __str__(self):
-        return f"{self.username} ({self.role})"
+        return f"{self.first_name} {self.last_name} ({self.role})"
 
 
 # Project QuerySet
@@ -86,7 +86,7 @@ class Project(models.Model):
 
 # Workflow QuerySet
 class WorkflowQuerySet(models.QuerySet):
-    
+
     # Get Active workflows
     def active(self):
         return self.filter(archived=False)

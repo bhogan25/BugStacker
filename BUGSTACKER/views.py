@@ -8,8 +8,26 @@ from django.http import HttpResponse, HttpResponseRedirect, JsonResponse
 from django.urls import reverse
 from .models import User, Project, Workflow, Ticket, Notification
 from django.views.decorators.csrf import csrf_exempt
-from .forms import NewTicketForm, NewWorkflowForm, NewProjectForm
+from .forms import NewTicketForm, NewWorkflowForm, NewProjectForm, EditProjectForm
 from django import forms
+
+
+# API Error Response Messages
+JSON_ERROR_MESSAGES = {
+    "invalid_action": {"error": "Invalid action"},
+    "access_denied": {"error": "Access denied"},
+}
+
+# API Access Permissions
+# ----------------------
+# Project API
+PROJECT_API_ALLOWED_ACTIONS = ['change_status', 'complete']
+PROJECT_API_ALLOWED_EDIT_FIELDS = ['name', 'team_members', 'description']
+PROJECT_API_ALLOWED_STATUSES = [Project.Status.ACTIVE, Project.Status.INACTIVE]
+
+# Workflow API
+
+# Ticket API
 
 
 
@@ -38,8 +56,6 @@ def register(request):
         last_name = request.POST["last_name"]
         username = request.POST["username"]
         email = request.POST["email"]
-        print(request.POST.getlist("role"))
-        breakpoint
         manager = request.POST.getlist("role")
 
         if manager:
@@ -94,7 +110,7 @@ def index(request):
             # Create project instance
             project = project_form.save(commit=False)
             
-            project.code = Project.objects.all().count() + 1
+            project.code = Project.objects.all().count() + 1     # Fix
             project.completed = False
             project.pm = request.user
             project.status = Project.Status.ACTIVE
@@ -138,12 +154,8 @@ def project_board(request, project_code):
     
     if request.method == "POST":
 
-        # Collect Post request data
-        q_dict = request.POST
-        
-        
-        # Check which form is being submitted (workflow | ticket)
-        if len(q_dict) == len(NewTicketForm.Meta.fields) + 1:
+        # Check which form is being submitted (edit project | new workflow | new ticket)
+        if (request.POST['target'] == 'ticket' and request.POST['action'] == 'new'):
 
             print("----------- NEW TICKET FORM -----------")
             
@@ -157,7 +169,7 @@ def project_board(request, project_code):
                 new_ticket = ticket_form.save(commit=False)
 
                 # Populate private fields
-                new_ticket.code = new_ticket.workflow.tickets.count() + 1
+                new_ticket.code = new_ticket.workflow.tickets.count() + 2     # Fix - come up with hidden token or string (00-00-001, where 001 is the ticket portion and the code value is actually 1 which is the primary key)
                 new_ticket.creator = request.user
                 new_ticket.resolution = Ticket.Resolution.NOT_FIXED
 
@@ -170,8 +182,8 @@ def project_board(request, project_code):
             else:
                 raise Http404("Submitted data invalid.")
 
-        # If form is Workflow
-        elif len(q_dict) == len(NewWorkflowForm.Meta.fields) + 1:
+        # If form is New Workflow
+        elif (request.POST['target'] == 'workflow' and request.POST['action'] == 'new'):
 
             print("----------- NEW WORKFLOW FORM -----------")
             
@@ -186,7 +198,7 @@ def project_board(request, project_code):
 
                 # Populate private fields
                 new_workflow.project = project
-                new_workflow.code = project.workflows.count() + 1
+                new_workflow.code = project.workflows.count() + 1      # Fix
                 new_workflow.archived = False
 
                 # Save new instance
@@ -197,8 +209,38 @@ def project_board(request, project_code):
             else:
                 raise Http404("Submitted data invalid.")
         
+        # If form is Edit Project
+        elif (request.POST['target'] == 'project' and request.POST['action'] == 'edit'):
+
+            print("----------- EDIT PROJECT FORM -----------")
+            
+            # Check & clean form
+            edit_project_form = EditProjectForm(request.POST)
+
+            # Clean Model Form and Model Validation
+            if edit_project_form.is_valid():
+                if edit_project_form.cleaned_data['name'] != '':
+                    project.name = edit_project_form.cleaned_data['name']
+                    print(project.name, edit_project_form.cleaned_data['name'])
+                
+                if edit_project_form.cleaned_data['description'] != '':
+                    project.description = edit_project_form.cleaned_data['description']
+                    print(project.description, edit_project_form.cleaned_data['description'])
+
+                if edit_project_form.cleaned_data['team_members'] != '':
+                    project.team_members.set(edit_project_form.cleaned_data['team_members'])
+                    print(edit_project_form.cleaned_data['team_members'])
+
+                project.save()
+
+                return HttpResponseRedirect(reverse("project_board", args=(project_code,)))
+
+            else:
+                raise Http404("Submitted data invalid.")
+        
         else:
             raise Http404("Submitted data invalid")
+        
 
     # GET Requests
     else:
@@ -207,18 +249,78 @@ def project_board(request, project_code):
         if project in request.user.get_all_projects():
 
             # New Ticket Form
-            ticket_form = NewTicketForm()
-            ticket_form.fields.get('workflow').queryset = project.workflows.all()
-            ticket_form.fields.get('assignees').queryset = project.all_members()
+            new_ticket_form = NewTicketForm()
+            new_ticket_form.fields.get('workflow').queryset = project.workflows.all()
+            new_ticket_form.fields.get('assignees').queryset = project.all_members()
 
             # New Workflow Form
-            workflow_form = NewWorkflowForm()
+            new_workflow_form = NewWorkflowForm()
+
+            # Edit Project Form
+            edit_project_form = EditProjectForm()
             
             return render(request, 'BUGSTACKER/project-board.html', {
                 "project": project,
-                "ticket_form": ticket_form,
-                "workflow_form": workflow_form,
+                "new_ticket_form": new_ticket_form,
+                "new_workflow_form": new_workflow_form,
+                "edit_project_form": edit_project_form,
             })
         else:
             raise Http404("We couldn't find that project!")
 
+
+# APIs
+@csrf_exempt
+@login_required
+def api_project(request, action, project_code):
+    # print(f"{action.capitalize()} request made on Project: {project.name}, Code: {project.code}")
+
+
+
+    # Check if action is allowed
+    if action not in PROJECT_API_ALLOWED_ACTIONS:
+        return JsonResponse(JSON_ERROR_MESSAGES["invalid_action"])
+    
+    # Get Project
+    project = get_object_or_404(Project, code=project_code)
+
+    # Check who is accessing (must be project PM)
+    if project.pm != request.user:
+        return JsonResponse(JSON_ERROR_MESSAGES["access_denied"])
+
+
+    # Set Project Status
+    if action == 'change_status':
+        return JsonResponse({
+            "message": f"{action.capitalize()} request made on Project: {project.name}, Code: {project.code}"
+        })
+
+    # Complete Project
+    if action == 'complete':
+        return JsonResponse({
+            "message": f"{action.capitalize()} request made on Project: {project.name}, Code: {project.code}"
+        })
+
+
+
+@csrf_exempt
+@login_required
+def api_workflow(request, action, project_code, workflow_code):
+    workflow = Project\
+        .objects.get(code=project_code)\
+        .workflows.get(code=workflow_code)
+    
+    print(f"{action.capitalize()} request made on Workflow: {workflow.name}, Code: {workflow.code}")
+    return JsonResponse({"message": f"{action.capitalize()} request made on Workflow: {workflow.name}, Code: {workflow.code}"})
+
+
+@csrf_exempt
+@login_required
+def api_ticket(request, action, project_code, workflow_code, ticket_code):
+    ticket = Project\
+        .objects.get(code=project_code)\
+        .workflows.get(code=workflow_code)\
+        .tickets.get(code=ticket_code)
+    
+    print(f"{action.capitalize()} request made on Ticket: {ticket.name}, Code: {ticket.code}")
+    return JsonResponse({"message": f"{action.capitalize()} request made on Ticket: {ticket.name}, Code: {ticket.code}"})

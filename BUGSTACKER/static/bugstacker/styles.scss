@@ -6,6 +6,13 @@ $text-color-dim: #c8c8c9;
 $background: black;
 $prefix: 'list-group';
 
+%post-button {
+    --bs-btn-padding-y: .1rem;
+    --bs-btn-padding-x: .5rem;
+    --bs-btn-font-size: 1rem;
+    --bs-btn-border-radius: .2rem;
+}
+
 
 .list-group-item-dark {
     --bs-list-group-color: white!important;
@@ -156,11 +163,11 @@ div.center.bubble {
 }
 
 .priority-1 {
-    color: green;
+    color: rgb(62, 149, 37);
 }
 
 .priority-2 {
-    color: yellow;
+    color: orange;
 }
 
 .priority-3 {
@@ -179,8 +186,8 @@ input {
     font-size: smaller;
 }
 
-$table-rows: 3000;
-$table-cols: 10;
+$table-rows: 100;
+$table-cols: 8;
 
 table {
   @for $i from 1 through $table-rows {
@@ -229,7 +236,7 @@ a {
 }
 
 .tool-bin {
-    width: 40px;
+    min-width: 40px;
 }
 
 svg.tool {
@@ -244,6 +251,10 @@ svg.tool:hover {
     stroke: $secondary-theme;
     height: 25px;
     width: 25px;
+}
+
+button.tool {
+    @extend %post-button;
 }
 
 a:hover {

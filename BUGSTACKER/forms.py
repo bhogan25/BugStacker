@@ -3,6 +3,9 @@ from .models import Ticket, Workflow, Project
 
 
 class NewProjectForm(forms.ModelForm):
+    action = forms.CharField(widget=forms.HiddenInput(attrs={'value': 'new'}))
+    target = forms.CharField(widget=forms.HiddenInput(attrs={'value': 'project'}))
+
     class Meta:
         model = Project
         fields = [
@@ -14,10 +17,19 @@ class NewProjectForm(forms.ModelForm):
         widgets = {
             'name': forms.TextInput(attrs={'class': 'form-control'}),
             'description': forms.Textarea(attrs={'class': 'form-control', 'rows': '3', 'placeholder': 'Project description'}),
-            'team_members': forms.SelectMultiple(attrs={'class': 'form-control'})
+            'team_members': forms.SelectMultiple(attrs={'class': 'form-control'}),
         }
 
+
+class EditProjectForm(NewProjectForm):
+    action = forms.CharField(widget=forms.HiddenInput(attrs={'value': 'edit'}))
+
+
+
 class NewWorkflowForm(forms.ModelForm,):
+    action = forms.CharField(widget=forms.HiddenInput(attrs={'value': 'new'}))
+    target = forms.CharField(widget=forms.HiddenInput(attrs={'value': 'workflow'}))
+
     class Meta:
         model = Workflow
         fields = [
@@ -30,7 +42,14 @@ class NewWorkflowForm(forms.ModelForm,):
             'description': forms.Textarea(attrs={'class': 'form-control', 'rows': '3'}),
         }
 
+class EditWorkflowForm(NewWorkflowForm):
+    action = forms.CharField(widget=forms.HiddenInput(attrs={'value': 'edit'}))
+
+
 class NewTicketForm(forms.ModelForm,):
+    action = forms.CharField(widget=forms.HiddenInput(attrs={'value': 'new'}))
+    target = forms.CharField(widget=forms.HiddenInput(attrs={'value': 'ticket'}))
+
     class Meta:
         model = Ticket
         fields = [
@@ -50,3 +69,7 @@ class NewTicketForm(forms.ModelForm,):
             'priority': forms.Select(attrs={'class': 'form-control'}),
             'assignees': forms.SelectMultiple(attrs={'class': 'form-control'}),
         }
+
+
+class EditTicketForm(NewTicketForm):
+    action = forms.CharField(widget=forms.HiddenInput(attrs={'value': 'edit'}))
