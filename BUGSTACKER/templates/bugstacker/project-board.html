@@ -12,7 +12,6 @@
 {% endblock %}
 
 {% block body %}
-
     <div class="center-well col-xxl-6">
         {% comment %}  Ticket Form Modal  {% endcomment %}
         <div class="modal fade" id="ticketFormModal" tabindex="-1" aria-labelledby="ticketFormModalLabel" aria-hidden="true">
@@ -29,7 +28,7 @@
                             
                             <div class="modal-footer mt-4">
                                 <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-                                <input type="submit" class="btn btn-primary" value="Create Ticket" />
+                                <button type="submit" class="btn btn-primary">Create Ticket</button>
                             </div>
                         </form>
                     </div>
@@ -52,7 +51,7 @@
                             
                             <div class="modal-footer mt-4">
                                 <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-                                <input type="submit" class="btn btn-primary" value="Create Workflow" />
+                                <button type="submit" class="btn btn-primary">Create Workflow</button>
                             </div>
                         </form>
                     </div>
@@ -75,7 +74,7 @@
                             
                             <div class="modal-footer mt-4">
                                 <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-                                <input type="submit" class="btn btn-primary" value="Submit Changes" />
+                                <button type="submit" class="btn btn-primary">Submit Changes</button>
                             </div>
                         </form>
                     </div>
@@ -93,28 +92,35 @@
         </nav>
 
         <div class="mt-1 mx-4 mb-4 pt-2 px-4 pb-2 overflow-auto">
-            <h1 class="text-start" id="projectName">{{ project.name }}</h1>
+            
+            {% if project.status == "A" %}
+                <h1 class="text-light d-inline" id="projectName">{{ project.name }} </h1>
+            {% elif project.status == "I" %}
+                <h1 class="text-danger d-inline" id="projectName">{{ project.name }} </h1>
+            {% endif %}
 
             <span>
                 {% comment %} Project Manager Tools {% endcomment %}
                 {% if user.role == "PM" %}
-                    <button class="btn btn-outline-primary m-2 tool" style="display: inline" data-bs-toggle="modal" data-bs-target="#editProjectFormModal">
-                        Edit Project
-                    </button>
-
-                    {% if project.status == "A" %}
-                        <button class="btn btn-outline-warning m-2 tool" style="display: inline" data-action="change_status" data-target="{{ project.code }}">
-                            Deactivate
+                    <div class="d-block">
+                        <button class="btn btn-outline-primary d-inline m-2 tool" data-bs-toggle="modal" data-bs-target="#editProjectFormModal">
+                            Edit Project
                         </button>
-                    {% elif project.status == "IA" %}
-                        <button class="btn btn-outline-success m-2 tool" style="display: inline" data-action="change_status" data-target="{{ project.code }}">
-                            Reactivate
+                        
+                        {% if project.status == "A" %}
+                            <button class="btn btn-outline-warning d-inline m-2 tool"data-action="change_status" data-target="{{ project.code }}" data-status="{{ project.status }}" id="changeProjectStatusBtn">
+                                Deactivate
+                            </button>
+                        {% elif project.status == "I" %}
+                            <button class="btn btn-outline-warning d-inline m-2 tool" data-action="change_status" data-target="{{ project.code }}" data-status="{{ project.status }}" id="changeProjectStatusBtn">
+                                Reactivate
+                            </button>
+                        {% endif %}
+                        
+                        <button class="btn btn-danger d-inline m-2 tool" data-action="complete" data-target="{{ project.code }}" id="completeProjectBtn">
+                            Complete
                         </button>
-                    {% endif %}
-                
-                    <button class="btn btn-danger m-2 tool" style="display: inline" data-action="edit" data-target="{{ project.code }}" id="manageProjectStatusBtn">
-                        Complete
-                    </button>
+                    </div>
                 {% endif %}
             </span>
 
@@ -173,7 +179,7 @@
                             <div>Project Code: {{ project.code }}</div>
                             <div>Started: {{ project.created }}</div>
                             <div>Project Manager: {{ project.pm.full_name }}</div>
-                            <div>Status: {{ project.get_status_display }}</div>
+                            <div>Status: <span id="projectStatus">{{ project.get_status_display }}</span></div>
                             <h5>Description</h5>
                             <p id="projectDescription">
                                 {{ project.description }}
@@ -254,7 +260,6 @@
             </div>
         </div>
     </div>
-    
 {% endblock %}
 
 {% block right %}

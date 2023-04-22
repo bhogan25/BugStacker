@@ -14,15 +14,15 @@ from django import forms
 
 # API Error Response Messages
 JSON_ERROR_MESSAGES = {
-    "invalid_action": {"error": "Invalid action"},
-    "access_denied": {"error": "Access denied"},
+    "invalid_action": {"error": "Invalid action."},
+    "access_denied": {"error": "Access denied."},
+    "invalid_payload": {"error": "Invalid payload."}
 }
 
 # API Access Permissions
 # ----------------------
 # Project API
 PROJECT_API_ALLOWED_ACTIONS = ['change_status', 'complete']
-PROJECT_API_ALLOWED_EDIT_FIELDS = ['name', 'team_members', 'description']
 PROJECT_API_ALLOWED_STATUSES = [Project.Status.ACTIVE, Project.Status.INACTIVE]
 
 # Workflow API
@@ -149,19 +149,26 @@ def index(request):
 
 @login_required
 def project_board(request, project_code):
+
     # Get Project if exists
     project = get_object_or_404(Project, code=project_code)
-    
+
+    # If completed project access via URL
+    if project.completed == True:
+        return render(request, 'BUGSTACKER/error.html', {
+            "message": "Project has already been completed."
+        })
+
     if request.method == "POST":
 
         # Check which form is being submitted (edit project | new workflow | new ticket)
         if (request.POST['target'] == 'ticket' and request.POST['action'] == 'new'):
 
             print("----------- NEW TICKET FORM -----------")
-            
+
             # Create new ticket instance
             ticket_form = NewTicketForm(request.POST)
-            
+
             # Clean Model Form and Model Validation
             if ticket_form.is_valid():
 
@@ -273,9 +280,6 @@ def project_board(request, project_code):
 @csrf_exempt
 @login_required
 def api_project(request, action, project_code):
-    # print(f"{action.capitalize()} request made on Project: {project.name}, Code: {project.code}")
-
-
 
     # Check if action is allowed
     if action not in PROJECT_API_ALLOWED_ACTIONS:
@@ -288,11 +292,28 @@ def api_project(request, action, project_code):
     if project.pm != request.user:
         return JsonResponse(JSON_ERROR_MESSAGES["access_denied"])
 
-
-    # Set Project Status
+    # Change Project Status
     if action == 'change_status':
+        data = json.loads(request.body)
+        current_status = data.get("current_status")
+
+        # Check status returned is allowed
+        if current_status not in PROJECT_API_ALLOWED_STATUSES:
+            return JsonResponse(JSON_ERROR_MESSAGES['invalid_payload'])
+        
+        # Select new Project Status
+        if current_status == Project.Status.ACTIVE:
+            new_status = Project.Status.INACTIVE
+            
+        elif current_status == Project.Status.INACTIVE:
+            new_status = Project.Status.ACTIVE
+
+        # Change project status
+        project.status = new_status
+        project.save()
+
         return JsonResponse({
-            "message": f"{action.capitalize()} request made on Project: {project.name}, Code: {project.code}"
+            "message": f"{action.capitalize()} request made on Project: {project.name} (Code: {project.code}) to change status from {current_status} to {new_status}"
         })
 
     # Complete Project

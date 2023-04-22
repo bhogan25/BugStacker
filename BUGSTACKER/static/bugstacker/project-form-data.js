@@ -1,7 +1,7 @@
 document.addEventListener('DOMContentLoaded', function () {
 
   // Get project data
-  const projectName = document.getElementById('projectName').innerHTML;
+  const projectName = document.getElementById('projectName').innerHTML.trim();
   const projectDescription = document.getElementById('projectDescription').innerHTML.trim();
   const teamMemberElements = document.querySelectorAll(".team-member");
   const teamMemeberNames = [];

@@ -1,5 +1,5 @@
 // Execute after content has been loaded
-import { setAllDisplayProps } from './helpers.js';
+import { setAllDisplayProps, returnProjectBodyObject, manageProjectChangeUI } from './helpers.js';
 
 document.addEventListener('DOMContentLoaded', function () {
 
@@ -26,12 +26,10 @@ document.addEventListener('DOMContentLoaded', function () {
     event.preventDefault()
 
     // Hide table btn & hide cards
-    // tableViewBtn.style.display = 'none';
     setAllDisplayProps(tableViewBtn, 'none');
     cards.style.display = 'none';
 
     // Show card btn and show table
-    // cardViewBtn.style.display = 'block';
     setAllDisplayProps(cardViewBtn, 'inline');
     table.style.display = 'block';
   }
@@ -40,12 +38,10 @@ document.addEventListener('DOMContentLoaded', function () {
     event.preventDefault()
 
     // Hide card btn & hide table
-    // cardViewBtn.style.display = 'none';
     setAllDisplayProps(cardViewBtn, 'none');
     table.style.display = 'none';
 
     // Show table btn & show cards
-    // tableViewBtn.style.display = 'block';
     setAllDisplayProps(tableViewBtn, 'inline');
     cards.style.display = 'block';
   }
@@ -53,10 +49,12 @@ document.addEventListener('DOMContentLoaded', function () {
 
   // API Requests
 
-  // Apply Event Handlers for manageProjectStatus()
-  const manageProjectStatusBtn = document.querySelector('#manageProjectStatusBtn');
-  manageProjectStatusBtn.onclick = manageProjectStatus;
-  console.log(manageProjectStatusBtn);
+  // Apply Event Handlers for manageProject()
+  const changeProjectStatusBtn = document.getElementById('changeProjectStatusBtn');
+  const completeProjectBtn = document.getElementById('completeProjectBtn')
+
+  changeProjectStatusBtn.onclick = manageProject;
+  completeProjectBtn.onclick = manageProject;
 
   // Apply Event Handlers for manageWorkflow()
   const manageWorkflowBtns = document.querySelectorAll('.manageWorkflowBtn');
@@ -74,7 +72,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
 
   // Manage Project
-  function manageProjectStatus(event) {
+  function manageProject(event) {
     event.preventDefault();
 
     // Get URL arguments
@@ -85,19 +83,18 @@ document.addEventListener('DOMContentLoaded', function () {
     console.log(target);
 
     // Assign Body object
-    body_obj = returnProjectBodyObject(action, target)
-
-
+    let bodyObj = returnProjectBodyObject(action, event.target)
 
     // Request Resource change
     fetch(`/project/${action}/${target}`, {
       method: 'PATCH',
-      body: JSON.stringify(body_obj)
+      body: JSON.stringify(bodyObj)
     })
     .then(response => response.json())
     .then(data => {
       if (!data.error) {
         console.log(data.message)
+        manageProjectChangeUI(action, event.target)
       } else {
         console.error(data.error)
       }
@@ -187,3 +184,6 @@ document.addEventListener('DOMContentLoaded', function () {
   }
 
 })
+
+
+
