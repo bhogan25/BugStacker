@@ -10,6 +10,9 @@ document.addEventListener('DOMContentLoaded', function () {
   //   myInput.focus()
   // })
 
+  const tooltipTriggerList = document.querySelectorAll('[data-bs-toggle="tooltip"]')
+  const tooltipList = [...tooltipTriggerList].map(tooltipTriggerEl => new bootstrap.Tooltip(tooltipTriggerEl))
+
 
   // Toggle Task View Mode
 
@@ -20,7 +23,6 @@ document.addEventListener('DOMContentLoaded', function () {
   // Get containers for Table and Cards
   const table = document.getElementById('ticketTable');
   const cards = document.getElementById('ticketCards');
-
 
   tableViewBtn.onclick = function(event) {
     event.preventDefault()

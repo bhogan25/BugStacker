@@ -55,7 +55,6 @@ export function manageProjectChangeUI(action, eventTarget) {
     let element = document.querySelector('#projectName')
     if (eventTarget.dataset['status'] === 'A') {
 
-      
 
       // Show Reactivate Btn, show Inactive status change current status to Inactive
       eventTarget.setAttribute('data-status', 'I');

@@ -8,7 +8,7 @@ from django.http import HttpResponse, HttpResponseRedirect, JsonResponse
 from django.urls import reverse
 from .models import User, Project, Workflow, Ticket, Notification
 from django.views.decorators.csrf import csrf_exempt
-from .forms import NewTicketForm, NewWorkflowForm, NewProjectForm, EditProjectForm
+from .forms import NewTicketForm, NewWorkflowForm, NewProjectForm, EditProjectForm, EditWorkflowForm
 from django import forms
 
 
@@ -132,11 +132,8 @@ def index(request):
 
             project_form = NewProjectForm()
 
-            # Get all devs
-            devs = User.objects.filter(role="DEV")
-
             # Set queryset for team_members
-            project_form.fields.get('team_members').queryset = devs
+            project_form.fields.get('team_members').queryset = User.objects.filter(role="DEV")
         
         else:
             project_form = None
@@ -226,32 +223,57 @@ def project_board(request, project_code):
 
             # Clean Model Form and Model Validation
             if edit_project_form.is_valid():
-                if edit_project_form.cleaned_data['name'] != '':
-                    project.name = edit_project_form.cleaned_data['name']
-                    print(project.name, edit_project_form.cleaned_data['name'])
-                
-                if edit_project_form.cleaned_data['description'] != '':
-                    project.description = edit_project_form.cleaned_data['description']
-                    print(project.description, edit_project_form.cleaned_data['description'])
 
-                if edit_project_form.cleaned_data['team_members'] != '':
-                    project.team_members.set(edit_project_form.cleaned_data['team_members'])
-                    print(edit_project_form.cleaned_data['team_members'])
+                # New Project data vars
+                new_name = edit_project_form.cleaned_data['name']
+                new_desc = edit_project_form.cleaned_data['description']
+                new_pm = edit_project_form.cleaned_data['pm']
+                new_team_members = edit_project_form.cleaned_data['team_members']
 
-                project.save()
+
+                if new_name != '' and new_name != project.name:
+                    project.name = new_name
+                    print(f"New Project Name: {project.name}")
+
+                if new_desc != '' and new_desc != project.description:
+                    project.description = new_desc
+                    print(f"New Project Description: {project.description}")
+
+                if new_pm != '' and new_pm != project.pm:
+                    project.pm = new_pm
+                    print(f"New PM: {edit_project_form.cleaned_data['pm']}")
+
+
+                if new_team_members.exists():
+
+                    # Compare new and team members
+                    print(f"Existing team members: {project.team_members.all()}")
+                    print(f"Proposed team members: {new_team_members}")
+
+                    # Users removed
+                    removed = [user for user in project.team_members.all() if user not in new_team_members]
+                    print(f"Removed Team Members: {removed}")
+
+                    # Users added
+                    added = [user for user in new_team_members if user not in project.team_members.all()]
+                    print(f"Added Team Members: {added}")
+
+
+                    project.team_members.set(new_team_members)
+
 
                 return HttpResponseRedirect(reverse("project_board", args=(project_code,)))
 
             else:
                 raise Http404("Submitted data invalid.")
-        
+
         else:
             raise Http404("Submitted data invalid")
-        
+
 
     # GET Requests
     else:
-        
+
         # Return view if project in user
         if project in request.user.get_all_projects():
 
@@ -265,12 +287,28 @@ def project_board(request, project_code):
 
             # Edit Project Form
             edit_project_form = EditProjectForm()
+            dev_users = User.objects.filter(role="DEV")
+            edit_project_form.fields.get('team_members').queryset = dev_users
+            select_size = dev_users.count() if dev_users.count() <= 8 else 8
+            edit_project_form.fields.get('team_members').widget.attrs = {'class': 'form-control', 'size': select_size}
+            edit_project_form.fields.get('pm').queryset = User.objects.filter(role=User.Role.PROJECT_MANAGER)
+            edit_project_form.fields.get('pm').empty_label = None
             
+            # Edit Workflow Form 
+            edit_workflow_form = EditWorkflowForm()
+            print(edit_workflow_form.fields)
+
+            edit_workflow_form.fields.get('workflow').queryset = project.workflows.all()
+            select_size = project.workflows.count() if project.workflows.count() <= 8 else 8
+            edit_workflow_form.fields.get('workflow').widget.attrs = {'class': 'form-control', 'size': select_size}
+            edit_workflow_form.fields.get('workflow').empty_label = None
+
             return render(request, 'BUGSTACKER/project-board.html', {
                 "project": project,
                 "new_ticket_form": new_ticket_form,
                 "new_workflow_form": new_workflow_form,
                 "edit_project_form": edit_project_form,
+                "edit_workflow_form": edit_workflow_form,
             })
         else:
             raise Http404("We couldn't find that project!")

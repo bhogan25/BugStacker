@@ -10,10 +10,6 @@ button.tool {
   --bs-list-group-bg: black!important;
 }
 
-strong.archived-tag {
-  color: rgb(172, 0, 0);
-}
-
 .rounded-pill {
   background-color: rgb(172, 0, 0);
 }
@@ -155,6 +151,13 @@ input {
   top: 30px;
   right: 20px;
   font-size: smaller;
+}
+
+button.archiveUnarchiveBtn {
+  position: absolute;
+  bottom: 0px;
+  right: 10px;
+  font-size: small;
 }
 
 table tr:nth-child(1) th:nth-child(1) {
@@ -4996,6 +4999,12 @@ a {
 
 .tool-bin {
   min-width: 40px;
+  height: 30px;
+}
+
+a.tool {
+  display: inline-block;
+  width: 0px;
 }
 
 svg.tool {

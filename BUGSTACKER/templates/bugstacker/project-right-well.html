@@ -3,8 +3,32 @@
         <h2>Hello, <strong>{{ user.first_name }}</strong></h2>
         <div>Role: <strong>{{ user.role }}</strong></div>
         <hr>
-        <h2 class="mt-3">Project Insights</h2>
+        {% comment %} Project Manager Tools {% endcomment %}
+            {% if user.role == "PM" %}
+                <div class="d-flex mt-1">
+                    <div class="pm-tools btn-group mt-1">
+                        <button type="button" class="btn btn-outline-light d-inline tool" data-bs-toggle="modal" data-bs-target="#editProjectFormModal">
+                            Edit Project
+                        </button>
+                        
+                        {% if project.status == "A" %}
+                        <button type="button" class="btn btn-outline-warning d-inline tool"data-action="change_status" data-target="{{ project.code }}" data-status="{{ project.status }}" id="changeProjectStatusBtn">
+                            Deactivate
+                        </button>
+                        {% elif project.status == "I" %}
+                        <button type="button" class="btn btn-outline-warning d-inline tool" data-action="change_status" data-target="{{ project.code }}" data-status="{{ project.status }}" id="changeProjectStatusBtn">
+                            Reactivate
+                        </button>
+                        {% endif %}
+                        
+                        <button type="button" class="btn btn-outline-danger d-inline tool" data-action="complete" data-target="{{ project.code }}" id="completeProjectBtn">
+                            Complete
+                        </button>
+                    </div>
+                </div>
+            {% endif %}
         <hr>
+        <h2 class="my-3">Project Insights</h2>
         <h4>Workflows</h4>
         <div>Workflows: {{ project.workflows.count }}</div>
         <ul>

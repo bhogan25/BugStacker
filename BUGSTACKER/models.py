@@ -53,7 +53,7 @@ class Project(models.Model):
     created = models.DateField(auto_now_add=True)
     completed = models.BooleanField(default=False, verbose_name="project complete?")
     pm = models.ForeignKey('User', null=True, on_delete=models.SET_NULL, related_name='projects_managed')
-    team_members = models.ManyToManyField(User, blank=True, related_name='projects_working')
+    team_members = models.ManyToManyField(User, blank=True, related_name='projects_working', verbose_name="Select Team Members")
     description = models.TextField(max_length=500, default="", verbose_name="project description")
     status = models.CharField(
             choices=Status.choices,
@@ -167,6 +167,7 @@ class Ticket(models.Model):
         NORMAL = 2
         LOW = 1
 
+    # project = models.ForeignKey('Project', on_delete=models.CASCADE, related_name="tickets")
     workflow = models.ForeignKey('Workflow', on_delete=models.CASCADE, related_name="tickets")
     creator = models.ForeignKey('User', null=True, on_delete=models.SET_NULL, related_name="tickets_created")
     assignees = models.ManyToManyField(User, blank=True, related_name="tickets_assigned")
@@ -191,13 +192,13 @@ class Ticket(models.Model):
         )
 
     objects = TicketQuerySet.as_manager()
-    
+
     def string_assignees(self):
         if self.assignees.all().count() > 0:
             return ", ".join([user.full_name() for user in self.assignees.all()])
         else:
             return "None"
-    
+
     def __str__(self):
         return f"Ticket {self.workflow.project.code}-{self.workflow.code}-{self.code}"
 

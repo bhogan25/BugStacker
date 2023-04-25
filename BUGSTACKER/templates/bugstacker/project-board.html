@@ -4,7 +4,7 @@
 {% block script %}
 {% comment %} type="text/babel" if the JS uses REACT {% endcomment %}
     <script type="module" src="{% static 'BUGSTACKER/project.js' %}"></script>
-    <script type="module" src="{% static 'BUGSTACKER/project-form-data.js' %}"></script>
+    <script type="module" src="{% static 'BUGSTACKER/edit-project-form-data.js' %}"></script>
 {% endblock %}
 
 {% block left %}
@@ -60,18 +60,43 @@
         </div>
 
         {% comment %}  Edit Project Form Modal  {% endcomment %}
-        <div class="modal fade" id="editProjectFormModal" tabindex="-1" aria-labelledby="editProjectFormModalLabel" aria-hidden="true">
+        {% if user.role == "PM" %}
+            <div class="modal fade" id="editProjectFormModal" tabindex="-1" aria-labelledby="editProjectFormModalLabel" aria-hidden="true">
+                <div class="modal-dialog">
+                    <div class="modal-content bg-dark border border-primary">
+                        <div class="modal-header">
+                            <h1 class="modal-title fs-5" id="editProjectFormModalLabel">Edit Project</h1>
+                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                        </div>
+                        <div class="modal-body">
+                            <form action="{% url 'project_board' project.code %}" method="post" id="editProjectForm">
+                                {% csrf_token %}
+                                {{ edit_project_form }}
+                                
+                                <div class="modal-footer mt-4">
+                                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                                    <button type="submit" class="btn btn-primary">Submit Changes</button>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        {% endif %}
+
+        {% comment %}  Edit Workflow Form Modal  {% endcomment %}
+        <div class="modal fade" id="editWorkflowFormModal" tabindex="-1" aria-labelledby="editWorkflowFormModalLabel" aria-hidden="true">
             <div class="modal-dialog">
                 <div class="modal-content bg-dark border border-primary">
                     <div class="modal-header">
-                        <h1 class="modal-title fs-5" id="editProjectFormModalLabel">Edit Project</h1>
+                        <h1 class="modal-title fs-5" id="editWorkflowFormModalLabel">Edit Workflow</h1>
                         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                     </div>
                     <div class="modal-body">
-                        <form action="{% url 'project_board' project.code %}" method="post" id="editProjectForm">
+                        <form action="{% url 'project_board' project.code %}" method="post" id="editWorkflowForm">
                             {% csrf_token %}
-                            {{ edit_project_form }}
-                            
+                            {{ edit_workflow_form }}
+
                             <div class="modal-footer mt-4">
                                 <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
                                 <button type="submit" class="btn btn-primary">Submit Changes</button>
@@ -99,58 +124,32 @@
                 <h1 class="text-danger d-inline" id="projectName">{{ project.name }} </h1>
             {% endif %}
 
-            <span>
-                {% comment %} Project Manager Tools {% endcomment %}
-                {% if user.role == "PM" %}
-                    <div class="d-block">
-                        <button class="btn btn-outline-primary d-inline m-2 tool" data-bs-toggle="modal" data-bs-target="#editProjectFormModal">
-                            Edit Project
-                        </button>
-                        
-                        {% if project.status == "A" %}
-                            <button class="btn btn-outline-warning d-inline m-2 tool"data-action="change_status" data-target="{{ project.code }}" data-status="{{ project.status }}" id="changeProjectStatusBtn">
-                                Deactivate
-                            </button>
-                        {% elif project.status == "I" %}
-                            <button class="btn btn-outline-warning d-inline m-2 tool" data-action="change_status" data-target="{{ project.code }}" data-status="{{ project.status }}" id="changeProjectStatusBtn">
-                                Reactivate
-                            </button>
-                        {% endif %}
-                        
-                        <button class="btn btn-danger d-inline m-2 tool" data-action="complete" data-target="{{ project.code }}" id="completeProjectBtn">
-                            Complete
-                        </button>
-                    </div>
-                {% endif %}
-            </span>
-
-            <div class="d-flex">
 
                 {% comment %} Modal Buttons and Tools {% endcomment %}
-                <div class="my-2 d-flex flex-wrap tools">
+                <div class="my-2 p-2 d-flex tools">
                         <div class="tool-bin my-2">
-                            <a class="tool p-2" data-bs-toggle="collapse" data-bs-target="#projectInfo" aria-expanded="false" style="text-decoration: none;">
+                            <a class="tool" title="Project Information" data-bs-toggle="collapse" data-bs-target="#projectInfo" aria-expanded="false" style="text-decoration: none;">
                                 <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" style="stroke: rgba(0, 0, 0, 0)" class="bi bi-info-square-fill tool" viewBox="0 0 16 16">
                                     <path d="M0 2a2 2 0 0 1 2-2h12a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2V2zm8.93 4.588-2.29.287-.082.38.45.083c.294.07.352.176.288.469l-.738 3.468c-.194.897.105 1.319.808 1.319.545 0 1.178-.252 1.465-.598l.088-.416c-.2.176-.492.246-.686.246-.275 0-.375-.193-.304-.533L8.93 6.588zM8 5.5a1 1 0 1 0 0-2 1 1 0 0 0 0 2z"/>
                                 </svg>
                             </a>
                         </div>
                         <div class="tool-bin my-2">
-                            <a class="tool ms-auto p-2" data-bs-toggle="collapse" data-bs-target="#projectTeam" aria-expanded="false" style="text-decoration: none;">
+                            <a class="tool" title="Team Members" data-bs-toggle="collapse" data-bs-target="#projectTeam" aria-expanded="false" style="text-decoration: none;">
                                 <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" class="bi bi-people-fill tool" viewBox="0 0 16 16">
                                     <path d="M7 14s-1 0-1-1 1-4 5-4 5 3 5 4-1 1-1 1H7Zm4-6a3 3 0 1 0 0-6 3 3 0 0 0 0 6Zm-5.784 6A2.238 2.238 0 0 1 5 13c0-1.355.68-2.75 1.936-3.72A6.325 6.325 0 0 0 5 9c-4 0-5 3-5 4s1 1 1 1h4.216ZM4.5 8a2.5 2.5 0 1 0 0-5 2.5 2.5 0 0 0 0 5Z"/>
                                 </svg>
                             </a>
                         </div>
                         <div class="tool-bin my-2">
-                            <a class="tool text-primary ms-auto p-2" data-bs-toggle="modal" data-bs-target="#ticketFormModal">
+                            <a class="tool" title="New Ticket" data-bs-toggle="modal" data-bs-target="#ticketFormModal">
                                 <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" class="bi bi-sticky tool" viewBox="0 0 16 16">
                                     <path d="M2.5 1A1.5 1.5 0 0 0 1 2.5v11A1.5 1.5 0 0 0 2.5 15h6.086a1.5 1.5 0 0 0 1.06-.44l4.915-4.914A1.5 1.5 0 0 0 15 8.586V2.5A1.5 1.5 0 0 0 13.5 1h-11zM2 2.5a.5.5 0 0 1 .5-.5h11a.5.5 0 0 1 .5.5V8H9.5A1.5 1.5 0 0 0 8 9.5V14H2.5a.5.5 0 0 1-.5-.5v-11zm7 11.293V9.5a.5.5 0 0 1 .5-.5h4.293L9 13.793z"/>
                                 </svg>
                             </a>
                         </div>
                         <div class="tool-bin my-2">
-                            <a class="tool text-primary ms-auto p-2" data-bs-toggle="modal" data-bs-target="#workflowFormModal">
+                            <a class="tool" title="New Workflow" data-bs-toggle="modal" data-bs-target="#workflowFormModal">
                                 <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" class="bi bi-stack tool" viewBox="0 0 16 16">
                                     <path d="m14.12 10.163 1.715.858c.22.11.22.424 0 .534L8.267 15.34a.598.598 0 0 1-.534 0L.165 11.555a.299.299 0 0 1 0-.534l1.716-.858 5.317 2.659c.505.252 1.1.252 1.604 0l5.317-2.66zM7.733.063a.598.598 0 0 1 .534 0l7.568 3.784a.3.3 0 0 1 0 .535L8.267 8.165a.598.598 0 0 1-.534 0L.165 4.382a.299.299 0 0 1 0-.535L7.733.063z"/>
                                     <path d="m14.12 6.576 1.715.858c.22.11.22.424 0 .534l-7.568 3.784a.598.598 0 0 1-.534 0L.165 7.968a.299.299 0 0 1 0-.534l1.716-.858 5.317 2.659c.505.252 1.1.252 1.604 0l5.317-2.659z"/>
@@ -158,12 +157,12 @@
                             </a>
                         </div>
                         <div class="tool-bin my-2">
-                            <a class="tool text-primary ms-auto p-2" id="tableViewBtn" style="display: none">
+                            <a class="tool" title="Table View" id="tableViewBtn" style="display: none">
                                 <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" class="bi bi-table tool toggle-tickets" viewBox="0 0 16 16">
                                     <path d="M0 2a2 2 0 0 1 2-2h12a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2V2zm15 2h-4v3h4V4zm0 4h-4v3h4V8zm0 4h-4v3h3a1 1 0 0 0 1-1v-2zm-5 3v-3H6v3h4zm-5 0v-3H1v2a1 1 0 0 0 1 1h3zm-4-4h4V8H1v3zm0-4h4V4H1v3zm5-3v3h4V4H6zm4 4H6v3h4V8z"/>
                                 </svg>
                             </a>
-                            <a class="tool text-primary ms-auto p-2" id="cardViewBtn">
+                            <a class="tool" title="Card View" id="cardViewBtn">
                                 <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" class="bi bi-card-heading tool toggle-tickets" viewBox="0 0 16 16">
                                     <path d="M14.5 3a.5.5 0 0 1 .5.5v9a.5.5 0 0 1-.5.5h-13a.5.5 0 0 1-.5-.5v-9a.5.5 0 0 1 .5-.5h13zm-13-1A1.5 1.5 0 0 0 0 3.5v9A1.5 1.5 0 0 0 1.5 14h13a1.5 1.5 0 0 0 1.5-1.5v-9A1.5 1.5 0 0 0 14.5 2h-13z"/>
                                     <path d="M3 8.5a.5.5 0 0 1 .5-.5h9a.5.5 0 0 1 0 1h-9a.5.5 0 0 1-.5-.5zm0 2a.5.5 0 0 1 .5-.5h6a.5.5 0 0 1 0 1h-6a.5.5 0 0 1-.5-.5zm0-5a.5.5 0 0 1 .5-.5h9a.5.5 0 0 1 .5.5v1a.5.5 0 0 1-.5.5h-9a.5.5 0 0 1-.5-.5v-1z"/>
@@ -171,14 +170,13 @@
                             </a>
                         </div>
 
-
                     {% comment %} Project Info {% endcomment %}
                     <div class="collapse w-100 my-2" id="projectInfo">
                         <div class="bg-dark card card-body">
                             <h4>Project Information</h4>
                             <div>Project Code: {{ project.code }}</div>
                             <div>Started: {{ project.created }}</div>
-                            <div>Project Manager: {{ project.pm.full_name }}</div>
+                            <div>Project Manager: <span id="projectPm" data-id="{{ project.pm.id }}">{{ project.pm.full_name }}</span></div>
                             <div>Status: <span id="projectStatus">{{ project.get_status_display }}</span></div>
                             <h5>Description</h5>
                             <p id="projectDescription">
@@ -198,9 +196,8 @@
                             </ul>
                         </div>
                     </div>
-
                 </div>
-            </div>
+
             <hr>
             {% comment %}<!-- Ticket cards -->{% endcomment %}
             <div style="display: none" id="ticketCards">

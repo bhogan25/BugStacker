@@ -21,12 +21,28 @@ class NewProjectForm(forms.ModelForm):
         }
 
 
-class EditProjectForm(NewProjectForm):
+class EditProjectForm(forms.ModelForm):
     action = forms.CharField(widget=forms.HiddenInput(attrs={'value': 'edit'}))
+    target = forms.CharField(widget=forms.HiddenInput(attrs={'value': 'project'}))
+
+    class Meta:
+        model = Project
+        fields = [
+            'name',
+            'description',
+            'pm',
+            'team_members',
+        ]
+
+        widgets = {
+            'name': forms.TextInput(attrs={'class': 'form-control'}),
+            'description': forms.Textarea(attrs={'class': 'form-control', 'rows': '3', 'placeholder': 'Project description'}),
+            'pm': forms.Select(attrs={'class': 'form-control'}),
+            'team_members': forms.SelectMultiple(),
+        }
 
 
-
-class NewWorkflowForm(forms.ModelForm,):
+class NewWorkflowForm(forms.ModelForm):
     action = forms.CharField(widget=forms.HiddenInput(attrs={'value': 'new'}))
     target = forms.CharField(widget=forms.HiddenInput(attrs={'value': 'workflow'}))
 
@@ -44,6 +60,7 @@ class NewWorkflowForm(forms.ModelForm,):
 
 class EditWorkflowForm(NewWorkflowForm):
     action = forms.CharField(widget=forms.HiddenInput(attrs={'value': 'edit'}))
+    workflow = forms.ChoiceField()
 
 
 class NewTicketForm(forms.ModelForm,):
