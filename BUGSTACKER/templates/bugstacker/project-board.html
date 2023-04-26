@@ -244,7 +244,7 @@
                             <td class="table-dark priority-{{ ticket.priority }}">{{ ticket.get_priority_display }}</td>
                             <td class="table-dark">{{ ticket.get_status_display }}</td>
                             <td class="table-dark">{{ ticket.target_complete|date:"m/d/y" }}</td>
-                            <td class="table-dark">{{ ticket.string_assignees|truncatewords:4 }}</td>
+                            <td class="table-dark" title="{{ ticket.string_assignees }}">{{ ticket.string_assignees|truncatewords:4 }}</td>
                             <td class="table-dark">
                                 <button class="manageTicketBtn" data-action="edit" data-project="{{ project.code }}" data-workflow="{{ ticket.workflow.code }}" data-target="{{ ticket.code }}">Manage</button>
                             </td>

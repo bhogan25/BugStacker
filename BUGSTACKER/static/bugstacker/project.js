@@ -1,5 +1,5 @@
 // Execute after content has been loaded
-import { setAllDisplayProps, returnProjectBodyObject, manageProjectChangeUI } from './helpers.js';
+import { setAllDisplayProps, returnProjectBodyObject, manageProjectChangeUI, populateWorkflowInputs } from './helpers.js';
 
 document.addEventListener('DOMContentLoaded', function () {
 
@@ -9,9 +9,6 @@ document.addEventListener('DOMContentLoaded', function () {
   //   myModal.addEventListener('shown.bs.modal', () => {
   //   myInput.focus()
   // })
-
-  const tooltipTriggerList = document.querySelectorAll('[data-bs-toggle="tooltip"]')
-  const tooltipList = [...tooltipTriggerList].map(tooltipTriggerEl => new bootstrap.Tooltip(tooltipTriggerEl))
 
 
   // Toggle Task View Mode
@@ -46,7 +43,25 @@ document.addEventListener('DOMContentLoaded', function () {
     // Show table btn & show cards
     setAllDisplayProps(tableViewBtn, 'inline');
     cards.style.display = 'block';
-  }
+  } 
+  
+
+  // Edit Workflow Form dynamic input population
+
+  // Populate initial form inputs for selected workflow
+  const workflowSelectInput = document.getElementById('editWorkflowFormSelectWorkflow');
+  // let selectedOption = document.querySelector(`select#editWorkflowFormSelectWorkflow > option[value="${workflowSelectInput.value}"]`);
+  // let wfCode = parseInt(selectedOption.innerHTML.split(": ").shift());
+  
+
+  populateWorkflowInputs(workflowSelectInput.value);
+
+  // Apply Event Handler to dynamically populate inputs
+  workflowSelectInput.addEventListener('change', () => {
+    // selectedOption = document.querySelector(`select#editWorkflowFormSelectWorkflow > option[value="${workflowSelectInput.value}"]`);
+    // wfCode = parseInt(selectedOption.innerHTML.split(": ").shift());
+    populateWorkflowInputs(workflowSelectInput.value);
+  })
 
 
   // API Requests
@@ -58,19 +73,22 @@ document.addEventListener('DOMContentLoaded', function () {
   changeProjectStatusBtn.onclick = manageProject;
   completeProjectBtn.onclick = manageProject;
 
-  // Apply Event Handlers for manageWorkflow()
-  const manageWorkflowBtns = document.querySelectorAll('.manageWorkflowBtn');
-  for (let i = 0; i < manageWorkflowBtns.length; i++) {
-    manageWorkflowBtns[i].onclick = manageWorkflow;
+  // Apply Event Handlers for archiveWorkflow()
+  const archiveUnarchiveBtns = document.querySelectorAll('.archiveUnarchiveBtn');
+  for (let i = 0; i < archiveUnarchiveBtns.length; i++) {
+    archiveUnarchiveBtns[i].onclick = archiveWorkflow;
   }
-  console.log(manageWorkflowBtns);
+  // console.log(archiveUnarchiveBtns);
 
+ 
+
+  
   // Apply Event Handlers for manageTicket()
   const manageTicketBtns = document.querySelectorAll('.manageTicketBtn');
   for (let i = 0; i < manageTicketBtns.length; i++) {
     manageTicketBtns[i].onclick = manageTicket;
   }
-  console.log(manageTicketBtns);
+  // console.log(manageTicketBtns);
 
 
   // Manage Project
@@ -107,8 +125,8 @@ document.addEventListener('DOMContentLoaded', function () {
   }
 
 
-  // Manage workflow
-  function manageWorkflow(event) {
+  // Archive workflow
+  function archiveWorkflow(event) {
     event.preventDefault();
 
     // Get URL arguments
@@ -116,25 +134,23 @@ document.addEventListener('DOMContentLoaded', function () {
     const project = event.target.dataset.project;
     const target = event.target.dataset.target;
 
-    console.log(action);
-    console.log(project);
-    console.log(target);
-
     // Check action and target values
 
     // Request Resource change
     fetch(`/workflow/${action}/${project}/${target}`, {
       method: 'PATCH',
-      body: JSON.stringify({
-        action: action,
-        project: project,
-        target: target,
-      })
     })
       .then(response => response.json())
       .then(data => {
         if (!data.error) {
           console.log(data.message)
+          
+          // Toggle archive/unarchive button text
+          if (event.target.innerHTML.trim() === "Archive") {
+            event.target.innerHTML = "Unarchive";
+          } else if (event.target.innerHTML.trim() === "Unarchive") {
+            event.target.innerHTML = "Archive";
+          }
         } else {
           console.error(data.error)
         }

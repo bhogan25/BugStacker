@@ -36,6 +36,7 @@ export function setAllDisplayProps(element, display) {
 
 
 export function returnProjectBodyObject(action, target) {
+
   if (action === "change_status") {
     if (target.dataset["status"]) {
       return {'current_status': target.dataset["status"]}
@@ -51,6 +52,7 @@ export function returnProjectBodyObject(action, target) {
 
 
 export function manageProjectChangeUI(action, eventTarget) {
+
   if (action === 'change_status') {
     let element = document.querySelector('#projectName')
     if (eventTarget.dataset['status'] === 'A') {
@@ -80,5 +82,22 @@ export function manageProjectChangeUI(action, eventTarget) {
     pageBtns.forEach((element) => element.disabled = 'true')
     console.log("buttons should be disabled");
   }
+
+}
+
+
+export function populateWorkflowInputs(wfCode){
+
+  // Get form inputs
+  const nameInput = document.getElementById('editWorkflowFormNameInput');
+  const descriptionInput = document.getElementById('editWorkflowFormDescriptionInput');
+
+  // Get selected workflow data
+  const wfName = document.querySelector(`h5[data-wf="${wfCode}"]`).dataset.name;
+  const wfDescription = document.querySelector(`p#wfdesc_${wfCode}`).innerHTML;
+
+  // Update form inputs to reflect the selected workflow
+  nameInput.value = wfName;
+  descriptionInput.value = wfDescription;
 
 }

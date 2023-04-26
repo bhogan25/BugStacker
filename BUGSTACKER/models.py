@@ -107,7 +107,7 @@ class Workflow(models.Model):
     objects = WorkflowQuerySet.as_manager()
 
     def __str__(self):
-        return f"Workflow {self.project.code}-{self.code}"
+        return f"{self.code}: {self.name}"
 
 
 # Ticket QuerySet

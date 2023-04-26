@@ -26,6 +26,7 @@ PROJECT_API_ALLOWED_ACTIONS = ['change_status', 'complete']
 PROJECT_API_ALLOWED_STATUSES = [Project.Status.ACTIVE, Project.Status.INACTIVE]
 
 # Workflow API
+WORKFLOW_API_ALLOWED_ACTIONS = ['change_archive_state']
 
 # Ticket API
 
@@ -156,6 +157,11 @@ def project_board(request, project_code):
             "message": "Project has already been completed."
         })
 
+    # Check if requester is on workflow's project team
+    if request.user not in project.team_members.all() and request.user != project.pm:
+        raise Http404("You do not have access to this Project")
+
+
     if request.method == "POST":
 
         # Check which form is being submitted (edit project | new workflow | new ticket)
@@ -212,12 +218,12 @@ def project_board(request, project_code):
 
             else:
                 raise Http404("Submitted data invalid.")
-        
+
         # If form is Edit Project
         elif (request.POST['target'] == 'project' and request.POST['action'] == 'edit'):
 
             print("----------- EDIT PROJECT FORM -----------")
-            
+
             # Check & clean form
             edit_project_form = EditProjectForm(request.POST)
 
@@ -230,7 +236,6 @@ def project_board(request, project_code):
                 new_pm = edit_project_form.cleaned_data['pm']
                 new_team_members = edit_project_form.cleaned_data['team_members']
 
-
                 if new_name != '' and new_name != project.name:
                     project.name = new_name
                     print(f"New Project Name: {project.name}")
@@ -239,10 +244,10 @@ def project_board(request, project_code):
                     project.description = new_desc
                     print(f"New Project Description: {project.description}")
 
-                if new_pm != '' and new_pm != project.pm:
+                # Check if new PM is new and has PM status
+                if new_pm != '' and new_pm != project.pm and new_pm.role == "PM":
                     project.pm = new_pm
                     print(f"New PM: {edit_project_form.cleaned_data['pm']}")
-
 
                 if new_team_members.exists():
 
@@ -258,18 +263,67 @@ def project_board(request, project_code):
                     added = [user for user in new_team_members if user not in project.team_members.all()]
                     print(f"Added Team Members: {added}")
 
-
+                    # Set new project team members
                     project.team_members.set(new_team_members)
 
+                # Save new project data
+                project.save()
 
                 return HttpResponseRedirect(reverse("project_board", args=(project_code,)))
 
             else:
                 raise Http404("Submitted data invalid.")
 
+        # If form is Edit Workflow
+        elif (request.POST['target'] == 'workflow' and request.POST['action'] == 'edit'):
+
+            print("----------- EDIT WORKFLOW FORM -----------")
+
+            # Check & clean form
+            edit_workflow_form = EditWorkflowForm(request.POST)
+
+            # Declare choices for form field ((code, name), ...)
+            wf_codes = [workflow.code for workflow in project.workflows.all()]
+            options = tuple([(wf_codes[i], project.workflows.all()[i].name) for i in range(len(project.workflows.all()))])
+            edit_workflow_form.fields.get('edit_workflow').choices = options
+
+            # Clean Model Form and Model Validation
+            if edit_workflow_form.is_valid():
+
+                # New Workflow data and vars
+                edit_workflow_code = edit_workflow_form.cleaned_data['edit_workflow']
+                new_name = edit_workflow_form.cleaned_data['name']
+                new_desc = edit_workflow_form.cleaned_data['description']
+
+                # Check if workflow exists
+                if Workflow.objects.filter(code=edit_workflow_code).exists():
+                    
+                    # Get workflow object
+                    edit_workflow_obj = Workflow.objects.get(code=edit_workflow_code)
+
+                    # Check if workflow belongs to project
+                    if edit_workflow_obj.project != project:
+                        raise Http404("Cannot edit this workflow from this page")
+
+                    if new_name != '' and new_name != edit_workflow_obj.name:
+                        edit_workflow_obj.name = new_name
+
+                    if new_desc != '' and new_name != edit_workflow_obj.description:
+                        edit_workflow_obj.description = new_desc
+
+                    # Save new instance
+                    edit_workflow_obj.save()
+
+                    return HttpResponseRedirect(reverse("project_board", args=(project_code,)))
+
+            else:
+                print("ERRORS OCCURED HERE")
+                print(f'Form Error HTML generated {edit_workflow_form.errors}')
+                print(f"edit_workflow key is holding: {edit_workflow_form['edit_workflow']}")
+                raise Http404("Submitted data invalid")
+
         else:
             raise Http404("Submitted data invalid")
-
 
     # GET Requests
     else:
@@ -293,15 +347,15 @@ def project_board(request, project_code):
             edit_project_form.fields.get('team_members').widget.attrs = {'class': 'form-control', 'size': select_size}
             edit_project_form.fields.get('pm').queryset = User.objects.filter(role=User.Role.PROJECT_MANAGER)
             edit_project_form.fields.get('pm').empty_label = None
-            
+
             # Edit Workflow Form 
             edit_workflow_form = EditWorkflowForm()
-            print(edit_workflow_form.fields)
+            wf_codes = [workflow.code for workflow in project.workflows.all()]
+            options = tuple([(wf_codes[i], project.workflows.all()[i].name) for i in range(len(project.workflows.all()))])
+            edit_workflow_form.fields.get('edit_workflow').choices = options
 
-            edit_workflow_form.fields.get('workflow').queryset = project.workflows.all()
-            select_size = project.workflows.count() if project.workflows.count() <= 8 else 8
-            edit_workflow_form.fields.get('workflow').widget.attrs = {'class': 'form-control', 'size': select_size}
-            edit_workflow_form.fields.get('workflow').empty_label = None
+            edit_workflow_form.fields.get('edit_workflow').widget.attrs = {'class': 'form-control', 'size': 1, 'id': 'editWorkflowFormSelectWorkflow'}
+            edit_workflow_form.fields.get('edit_workflow').empty_label = None
 
             return render(request, 'BUGSTACKER/project-board.html', {
                 "project": project,
@@ -338,15 +392,14 @@ def api_project(request, action, project_code):
         # Check status returned is allowed
         if current_status not in PROJECT_API_ALLOWED_STATUSES:
             return JsonResponse(JSON_ERROR_MESSAGES['invalid_payload'])
-        
+
         # Select new Project Status
         if current_status == Project.Status.ACTIVE:
             new_status = Project.Status.INACTIVE
-            
         elif current_status == Project.Status.INACTIVE:
             new_status = Project.Status.ACTIVE
 
-        # Change project status
+        # Save new project status
         project.status = new_status
         project.save()
 
@@ -361,14 +414,33 @@ def api_project(request, action, project_code):
         })
 
 
-
 @csrf_exempt
 @login_required
 def api_workflow(request, action, project_code, workflow_code):
-    workflow = Project\
-        .objects.get(code=project_code)\
-        .workflows.get(code=workflow_code)
     
+    # Check if action is allowed
+    if action not in WORKFLOW_API_ALLOWED_ACTIONS:
+            return JsonResponse(JSON_ERROR_MESSAGES["invalid_action"])
+
+    # Get objects
+    project = get_object_or_404(Project, code=project_code)
+    workflow = get_object_or_404(Workflow, project=project, code=workflow_code)
+
+    # Check who is accessing (must be project PM or team member)
+    if request.user != project.pm and request.user not in project.team_members.all():
+        return JsonResponse(JSON_ERROR_MESSAGES["access_denied"])
+
+    # Change Workflow archive state
+    if action == 'change_archive_state':
+
+        print(f"Old State: {workflow.archived}")
+
+        # Save new Workflow archive state to opposite
+        workflow.archived = False if workflow.archived else True
+        workflow.save()
+
+        print(f"New State: {workflow.archived}")
+
     print(f"{action.capitalize()} request made on Workflow: {workflow.name}, Code: {workflow.code}")
     return JsonResponse({"message": f"{action.capitalize()} request made on Workflow: {workflow.name}, Code: {workflow.code}"})
 

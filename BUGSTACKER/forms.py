@@ -58,9 +58,25 @@ class NewWorkflowForm(forms.ModelForm):
             'description': forms.Textarea(attrs={'class': 'form-control', 'rows': '3'}),
         }
 
-class EditWorkflowForm(NewWorkflowForm):
-    action = forms.CharField(widget=forms.HiddenInput(attrs={'value': 'edit'}))
-    workflow = forms.ChoiceField()
+class EditWorkflowForm(forms.ModelForm):
+    action = forms.CharField(widget=forms.HiddenInput(attrs={'class': 'form-control', 'value': 'edit'}))
+    edit_workflow = forms.ChoiceField(label="Select Workflow")
+    target = forms.CharField(widget=forms.HiddenInput(attrs={'value': 'workflow'}))
+
+    class Meta:
+        model = Workflow
+        fields = [
+            'name',
+            'description',
+        ]
+
+        widgets = {
+            'name': forms.TextInput(attrs={'class': 'form-control', 'id': 'editWorkflowFormNameInput'}),
+            'description': forms.Textarea(attrs={'class': 'form-control','id': 'editWorkflowFormDescriptionInput', 'rows': '3'}),
+        }
+
+    # Define the order of fields in the form
+    field_order = ['edit_workflow', 'name', 'description', 'action', 'target']
 
 
 class NewTicketForm(forms.ModelForm,):
