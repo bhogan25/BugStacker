@@ -50,16 +50,10 @@ document.addEventListener('DOMContentLoaded', function () {
 
   // Populate initial form inputs for selected workflow
   const workflowSelectInput = document.getElementById('editWorkflowFormSelectWorkflow');
-  // let selectedOption = document.querySelector(`select#editWorkflowFormSelectWorkflow > option[value="${workflowSelectInput.value}"]`);
-  // let wfCode = parseInt(selectedOption.innerHTML.split(": ").shift());
-  
-
   populateWorkflowInputs(workflowSelectInput.value);
 
   // Apply Event Handler to dynamically populate inputs
   workflowSelectInput.addEventListener('change', () => {
-    // selectedOption = document.querySelector(`select#editWorkflowFormSelectWorkflow > option[value="${workflowSelectInput.value}"]`);
-    // wfCode = parseInt(selectedOption.innerHTML.split(": ").shift());
     populateWorkflowInputs(workflowSelectInput.value);
   })
 
@@ -78,17 +72,25 @@ document.addEventListener('DOMContentLoaded', function () {
   for (let i = 0; i < archiveUnarchiveBtns.length; i++) {
     archiveUnarchiveBtns[i].onclick = archiveWorkflow;
   }
-  // console.log(archiveUnarchiveBtns);
 
- 
 
-  
   // Apply Event Handlers for manageTicket()
-  const manageTicketBtns = document.querySelectorAll('.manageTicketBtn');
-  for (let i = 0; i < manageTicketBtns.length; i++) {
-    manageTicketBtns[i].onclick = manageTicket;
-  }
-  // console.log(manageTicketBtns);
+  // const manageTicketBtns = document.querySelectorAll('.manageTicketBtn');
+  // for (let i = 0; i < manageTicketBtns.length; i++) {
+  //   manageTicketBtns[i].onclick = manageTicket;
+  // }
+
+  // // Apply event handlers for edit ticket button
+  // const editTicketBtns = document.querySelectorAll('.editTicketBtn');
+  // for (let i = 0; i < editTicketBtns.length; i++) {
+  //   editTicketBtns[i].onclick = (event) => {
+  //     let target_ticket = event.target.id.split("_").pop()
+
+  //   }
+  // }
+
+  // // Apply event handler for change ticket status
+  // const changeTicketStatusBtns = document.querySelectorAll('.changeTicketStatusBtn')
 
 
   // Manage Project
@@ -202,6 +204,3 @@ document.addEventListener('DOMContentLoaded', function () {
   }
 
 })
-
-
-

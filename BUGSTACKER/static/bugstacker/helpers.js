@@ -13,7 +13,7 @@ export function setAllDisplayProps(element, display) {
 
   // Check arguments
   if (!(element instanceof HTMLElement) & !(element instanceof SVGElement)) {
-    throw new Error('Element must be an instance of an "HTMLElement" or "SVGElement.');
+    throw new Error('Element(s) must be an instance of an "HTMLElement" or "SVGElement.');
   }
 
   if (typeof display !== 'string') {
@@ -86,7 +86,7 @@ export function manageProjectChangeUI(action, eventTarget) {
 }
 
 
-export function populateWorkflowInputs(wfCode){
+export function populateWorkflowInputs(wfCode) {
 
   // Get form inputs
   const nameInput = document.getElementById('editWorkflowFormNameInput');

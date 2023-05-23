@@ -266,6 +266,10 @@ button.tool {
     @extend %post-button;
 }
 
+button.tool {
+    @extend %post-button;
+}
+
 a:hover {
     color: $secondary-theme;
 }

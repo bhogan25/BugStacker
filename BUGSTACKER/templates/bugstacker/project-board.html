@@ -1,10 +1,12 @@
 {% extends "BUGSTACKER/layout.html" %}
 {% load static %}
+{% load extra_filters %}
 
 {% block script %}
 {% comment %} type="text/babel" if the JS uses REACT {% endcomment %}
     <script type="module" src="{% static 'BUGSTACKER/project.js' %}"></script>
     <script type="module" src="{% static 'BUGSTACKER/edit-project-form-data.js' %}"></script>
+    <script type="text/babel" src="{% static 'BUGSTACKER/manage-ticket.js' %}"></script>
 {% endblock %}
 
 {% block left %}
@@ -13,7 +15,7 @@
 
 {% block body %}
     <div class="center-well col-xxl-6">
-        {% comment %}  Ticket Form Modal  {% endcomment %}
+        {% comment %}  New Ticket Form Modal  {% endcomment %}
         <div class="modal fade" id="ticketFormModal" tabindex="-1" aria-labelledby="ticketFormModalLabel" aria-hidden="true">
             <div class="modal-dialog">
                 <div class="modal-content bg-dark border border-primary">
@@ -27,7 +29,7 @@
                             {{ new_ticket_form }}
                             
                             <div class="modal-footer mt-4">
-                                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Exit</button>
                                 <button type="submit" class="btn btn-primary">Create Ticket</button>
                             </div>
                         </form>
@@ -36,7 +38,7 @@
             </div>
         </div>
 
-        {% comment %}  Workflow Form Modal  {% endcomment %}
+        {% comment %}  New Workflow Form Modal  {% endcomment %}
         <div class="modal fade" id="workflowFormModal" tabindex="-1" aria-labelledby="workflowFormModalLabel" aria-hidden="true">
             <div class="modal-dialog">
                 <div class="modal-content bg-dark border border-primary">
@@ -50,7 +52,7 @@
                             {{ new_workflow_form }}
                             
                             <div class="modal-footer mt-4">
-                                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Exit</button>
                                 <button type="submit" class="btn btn-primary">Create Workflow</button>
                             </div>
                         </form>
@@ -74,7 +76,7 @@
                                 {{ edit_project_form }}
                                 
                                 <div class="modal-footer mt-4">
-                                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Exit</button>
                                     <button type="submit" class="btn btn-primary">Submit Changes</button>
                                 </div>
                             </form>
@@ -98,10 +100,63 @@
                             {{ edit_workflow_form }}
 
                             <div class="modal-footer mt-4">
-                                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Exit</button>
                                 <button type="submit" class="btn btn-primary">Submit Changes</button>
                             </div>
                         </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        {% comment %}  Edit Ticket Form Modal  {% endcomment %}
+        <div class="modal fade" id="editTicketFormModal" tabindex="-1" aria-labelledby="editTicketFormModalLabel" aria-hidden="true">
+            <div class="modal-dialog">
+                <div class="modal-content bg-dark border border-primary">
+                    <div class="modal-header">
+                        <h1 class="modal-title fs-5" id="editTicketFormModalLabel">Edit Ticket</h1>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body">
+                        <form action="{% url 'project_board' project.code %}" method="post">
+                            {% csrf_token %}
+                            {{ edit_ticket_form }}
+                            
+                            <div class="modal-footer mt-4">
+                                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Exit</button>
+                                <button type="submit" class="btn btn-primary">Save Changes</button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        {% comment %}  Ticket Resolution Modal  {% endcomment %}
+        <div class="modal fade" id="ticketResolutionModal" tabindex="-1" aria-labelledby="ticketResolutionModalLabel" aria-hidden="true">
+            <div class="modal-dialog">
+                <div class="modal-content bg-dark border border-primary">
+                    <div class="modal-header">
+                        <h1 class="modal-title fs-5" id="ticketResolutionModalLabel">Resolve Ticket: </h1>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body py-3">
+                        <h5>Select a Resolution:</h5>
+
+                        {% for option in resolutions %}
+                            {% if option.name != "NOT_FIXED" %}
+                                <div class="ms-3 form-check">
+                                    <input class="form-check-input" type="radio" name="resolution" value="{{ option.value }}" />
+                                    <label class="form-check-label" for="">{{ option.name|underscore_to_title }}</label>
+                                    <br>
+                                </div>
+                            {% endif %}
+                        {% endfor %}
+
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                        <button type="submit" class="btn btn-primary" id="resolutionModalSubmitBtn" data-bs-dismiss="modal" disabled>Submit</button>
                     </div>
                 </div>
             </div>
@@ -212,8 +267,19 @@
                     <div>Created by: {{ ticket.creator }}</div>
                     <div>Target Complete: {{ ticket.target_complete }}</div>
                     <div>Assignees: {{ ticket.string_assignees }}</div>
+                    <p>Raw assignees: {{ ticket.assignees }}</p>
                     <p>{{ ticket.description }}</p>
-                    <button class="manageTicketBtn" data-action="edit" data-project="{{ project.code }}" data-workflow="{{ ticket.workflow.code }}" data-target="{{ ticket.code }}">Manage</button>
+
+                    <!-- Render React Buttons -->
+                    <div 
+                        class="manage-ticket-btns" 
+                        id="manageTicketBtn_{{ ticket.code }}" 
+                        data-name="{{ ticket.name }}"
+                        data-wf="{{ ticket.workflow.code }}"
+                        data-status="{{ ticket.status }}" 
+                        data-resolution="{{ ticket.resolution }}">
+                    </div>
+
                 </div>
                 {% empty %}
                 <p>No Tickets...</p>

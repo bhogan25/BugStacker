@@ -79,7 +79,7 @@ class EditWorkflowForm(forms.ModelForm):
     field_order = ['edit_workflow', 'name', 'description', 'action', 'target']
 
 
-class NewTicketForm(forms.ModelForm,):
+class NewTicketForm(forms.ModelForm):
     action = forms.CharField(widget=forms.HiddenInput(attrs={'value': 'new'}))
     target = forms.CharField(widget=forms.HiddenInput(attrs={'value': 'ticket'}))
 
@@ -104,5 +104,18 @@ class NewTicketForm(forms.ModelForm,):
         }
 
 
-class EditTicketForm(NewTicketForm):
+class EditTicketForm(forms.ModelForm):
     action = forms.CharField(widget=forms.HiddenInput(attrs={'value': 'edit'}))
+    target = forms.CharField(widget=forms.HiddenInput(attrs={'value': 'ticket'}))
+
+    class Meta:
+        model = Ticket
+        fields = [
+            'description',
+            'assignees',
+        ]
+
+        widgets = {
+            'description': forms.Textarea(attrs={'class': 'form-control', 'rows': '3'}),
+            'assignees': forms.SelectMultiple(attrs={'class': 'form-control'}),
+        }

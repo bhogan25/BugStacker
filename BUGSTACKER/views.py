@@ -4,19 +4,23 @@ from django.http import Http404
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.decorators import login_required
 from django.db import IntegrityError
+from django.core.exceptions import MultipleObjectsReturned, ObjectDoesNotExist
 from django.http import HttpResponse, HttpResponseRedirect, JsonResponse
 from django.urls import reverse
 from .models import User, Project, Workflow, Ticket, Notification
 from django.views.decorators.csrf import csrf_exempt
-from .forms import NewTicketForm, NewWorkflowForm, NewProjectForm, EditProjectForm, EditWorkflowForm
+from .forms import NewTicketForm, NewWorkflowForm, NewProjectForm, EditProjectForm, EditWorkflowForm, EditTicketForm
 from django import forms
 
 
 # API Error Response Messages
 JSON_ERROR_MESSAGES = {
-    "invalid_action": {"error": "Invalid action."},
-    "access_denied": {"error": "Access denied."},
-    "invalid_payload": {"error": "Invalid payload."}
+    "unknown_error": {"error": "SERVER: Unknown error"},
+    "invalid_action": {"error": "SERVER: Invalid action."},
+    "access_denied": {"error": "SERVER: Access denied."},
+    "invalid_payload": {"error": "SERVER: Invalid payload."},
+    "mulitple_objects": {"error": "SERVER: Action returned multiple objects."},
+    "object_does_not_exist": {"error": "SERVER: Action requested object that does not exist."},
 }
 
 # API Access Permissions
@@ -29,6 +33,7 @@ PROJECT_API_ALLOWED_STATUSES = [Project.Status.ACTIVE, Project.Status.INACTIVE]
 WORKFLOW_API_ALLOWED_ACTIONS = ['change_archive_state']
 
 # Ticket API
+TICKET_API_ALLOWED_ACTIONS = ['advance-status']
 
 
 
@@ -151,13 +156,13 @@ def project_board(request, project_code):
     # Get Project if exists
     project = get_object_or_404(Project, code=project_code)
 
-    # If completed project access via URL
+    # Block request if project completed
     if project.completed == True:
         return render(request, 'BUGSTACKER/error.html', {
             "message": "Project has already been completed."
         })
 
-    # Check if requester is on workflow's project team
+    # Check if requester is on project team or is PM
     if request.user not in project.team_members.all() and request.user != project.pm:
         raise Http404("You do not have access to this Project")
 
@@ -223,6 +228,10 @@ def project_board(request, project_code):
         elif (request.POST['target'] == 'project' and request.POST['action'] == 'edit'):
 
             print("----------- EDIT PROJECT FORM -----------")
+
+            # Check if requester is a PM
+            if request.user.role != "PM":
+                return Http404("Permission denied")
 
             # Check & clean form
             edit_project_form = EditProjectForm(request.POST)
@@ -348,7 +357,7 @@ def project_board(request, project_code):
             edit_project_form.fields.get('pm').queryset = User.objects.filter(role=User.Role.PROJECT_MANAGER)
             edit_project_form.fields.get('pm').empty_label = None
 
-            # Edit Workflow Form 
+            # Edit Workflow Form
             edit_workflow_form = EditWorkflowForm()
             wf_codes = [workflow.code for workflow in project.workflows.all()]
             options = tuple([(wf_codes[i], project.workflows.all()[i].name) for i in range(len(project.workflows.all()))])
@@ -357,15 +366,96 @@ def project_board(request, project_code):
             edit_workflow_form.fields.get('edit_workflow').widget.attrs = {'class': 'form-control', 'size': 1, 'id': 'editWorkflowFormSelectWorkflow'}
             edit_workflow_form.fields.get('edit_workflow').empty_label = None
 
+            # Edit Ticket Form
+            edit_ticket_form = EditTicketForm()
+            edit_ticket_form.fields.get('assignees').queryset = project.all_members()
+
+            # Resolution Options
+            resolutions = Ticket.Resolution
+
+
             return render(request, 'BUGSTACKER/project-board.html', {
                 "project": project,
                 "new_ticket_form": new_ticket_form,
                 "new_workflow_form": new_workflow_form,
                 "edit_project_form": edit_project_form,
                 "edit_workflow_form": edit_workflow_form,
+                "edit_ticket_form": edit_ticket_form,
+                "resolutions": resolutions,
             })
         else:
             raise Http404("We couldn't find that project!")
+
+
+@csrf_exempt
+@login_required
+def edit_ticket(request, project_code, ticket_code):
+
+    if request.POST.method == "POST" and request.POST['target'] == 'ticket' and request.POST['action'] == 'edit':
+
+        print("----------- EDIT TICKET FORM -----------")
+
+        # Get Project and ticket if exists
+        project = get_object_or_404(Project, code=project_code)
+        target_ticket_object = get_object_or_404(Ticket, code=ticket_code)
+
+        # Block request if project completed
+        if project.completed == True:
+            return Http404("Could not process request")
+
+        # Block request if Ticket status is "DONE"
+        if target_ticket_object.status == "DONE": 
+            return Http404("Cannot edit closed ticket")
+
+        # Block request if requester is not on project team or is not PM
+        if request.user not in project.team_members.all() and request.user != project.pm:
+            raise Http404("You do not have access to this Project")
+
+        # Clean form data
+        edit_ticket_form = EditTicketForm(request.POST)
+
+        if edit_ticket_form.is_valid():
+
+            # Get form data
+            new_description = edit_ticket_form.cleaned_data['description']
+            new_assignees = edit_ticket_form.cleaned_data['assignees']
+
+            # Check if description is same as before, or if it is blank
+            if new_description != '' and new_description != target_ticket_object.description:
+                target_ticket_object.description = new_description
+
+            # Check if new assingees are sumbitted
+            if new_assignees.exists():
+
+                    # Var declarations
+                    team_members = project.team_members.all()
+                    existing_assignees = target_ticket_object.assignees
+
+                    print(f"Existing team members: {team_members}")
+                    print(f"Edisting ticket assignees {target_ticket_object.assignees}")
+                    print(f"Proposed ticket assignees: {new_assignees}")
+
+                    # Check if new members are on project team
+                    for user in new_assignees:
+                        if user not in team_members:
+                            return Http404("Proposed assignees not on project team")
+
+                    # Users removed
+                    removed = [user for user in existing_assignees if user not in new_assignees]
+                    print(f"Removed Assignees: {removed}")
+
+                    # Users added
+                    added = [user for user in new_assignees if user not in existing_assignees]
+                    print(f"Added Assignees: {added}")
+
+                    # Save new ticket and set new assignees
+                    target_ticket_object.save()
+                    target_ticket_object.assingees.set(new_assignees)
+
+        return HttpResponseRedirect(reverse("project_board", args=(project_code,)))
+
+    else:
+        raise Http404("Cannot support that request")
 
 
 # APIs
@@ -376,7 +466,7 @@ def api_project(request, action, project_code):
     # Check if action is allowed
     if action not in PROJECT_API_ALLOWED_ACTIONS:
         return JsonResponse(JSON_ERROR_MESSAGES["invalid_action"])
-    
+
     # Get Project
     project = get_object_or_404(Project, code=project_code)
 
@@ -448,10 +538,21 @@ def api_workflow(request, action, project_code, workflow_code):
 @csrf_exempt
 @login_required
 def api_ticket(request, action, project_code, workflow_code, ticket_code):
-    ticket = Project\
+    # Receives status update (Created -> In Progress, or In Progress -> Resolved)
+
+    # If In Progress -> Resolved, resolution is required
+
+    try:
+        ticket = Project\
         .objects.get(code=project_code)\
         .workflows.get(code=workflow_code)\
         .tickets.get(code=ticket_code)
-    
+    except MultipleObjectsReturned:
+        return JsonResponse(JSON_ERROR_MESSAGES["mulitple_objects"])
+    except ObjectDoesNotExist:
+        return JsonResponse(JSON_ERROR_MESSAGES["object_does_not_exist"])
+    except Exception as e:
+        return JsonResponse(JSON_ERROR_MESSAGES["unknown_error"])
+
     print(f"{action.capitalize()} request made on Ticket: {ticket.name}, Code: {ticket.code}")
-    return JsonResponse({"message": f"{action.capitalize()} request made on Ticket: {ticket.name}, Code: {ticket.code}"})
+    return JsonResponse({"message": f"SERVER: {action.capitalize()} request made on Ticket: {ticket.name}, Code: {ticket.code}"})

@@ -204,7 +204,7 @@ class Ticket(models.Model):
 
 # Notifications
 class Notification(AbstractNotification):
-    pass
+
 
     class Meta(AbstractNotification.Meta):
         abstract = False

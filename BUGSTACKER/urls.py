@@ -7,6 +7,7 @@ urlpatterns = [
     path("accounts/login", views.login_view, name="login"),
     path("accounts/register", views.register, name="register"),
     path("accounts/logout", views.logout_view, name="logout"),
+    # Edit Ticket Path
 
     # API Routes
     path("project/<str:action>/<int:project_code>", views.api_project, name="api_project"),
