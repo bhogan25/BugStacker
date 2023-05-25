@@ -20,9 +20,8 @@
                         {% endif %}
                         <p class="mb-1" id="wfdesc_{{ workflow.code }}">{{ workflow.description }}</p>
                         <div class="fw-light fs-6 text-body-color">{{ workflow.created }}</div>
-
-
                     </div>
+
                     {% if workflow.tickets.count == 1 %}
                     <span class="badge rounded-pill ticket-pill">{{ workflow.tickets.count }} Ticket</span>
                     {% else %}
