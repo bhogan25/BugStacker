@@ -229,7 +229,7 @@
                     <div class="collapse w-100 my-2" id="projectInfo">
                         <div class="bg-dark card card-body">
                             <h4>Project Information</h4>
-                            <div>Project Code: {{ project.code }}</div>
+                            <div>Code: {{ project.code|project_hrc }}</div>
                             <div>Started: {{ project.created }}</div>
                             <div>Project Manager: <span id="projectPm" data-id="{{ project.pm.id }}">{{ project.pm.full_name }}</span></div>
                             <div>Status: <span id="projectStatus">{{ project.get_status_display }}</span></div>
@@ -259,7 +259,7 @@
                 {% for ticket in project.all_tickets %}
                 <div class="ticket-card center bubble pt-3 my-4 pb-2 px-4 rounded-3" id="t_{{ ticket.code }}">
                     <h1>{{ ticket.name }}</h1>
-                    <div>Ticket Code: {{ ticket.code }}</div>
+                    <div>Code: {{ ticket.code|ticket_hrc_short:ticket.id }}</div>
                     <div>Workflow: {{ ticket.workflow.name }}</div>
                     <div>Priority: <span class="priority-{{ ticket.priority }}">{{ ticket.get_priority_display }}</span></div>
                     <div>Status: {{ ticket.get_status_display }}</div>
@@ -292,7 +292,7 @@
                     <thead>
                         <tr class="table-dark">
                             <th class="align-middle table-dark">Ticket Name</th>
-                            <th class="align-middle table-dark">#</th>
+                            <th class="align-middle table-dark">Code</th>
                             <th class="align-middle table-dark">Workflow</th>
                             <th class="align-middle table-dark">Priority</th>
                             <th class="align-middle table-dark">Status</th>
@@ -305,7 +305,7 @@
                         {% for ticket in project.all_tickets %}
                         <tr class="table-dark">
                             <td class="table-dark">{{ ticket.name|truncatewords:4 }}</td>
-                            <td class="table-dark">{{ ticket.code }}</td>
+                            <td class="table-dark">{{ ticket.code|ticket_hrc_short:ticket.id }}</td>
                             <td class="table-dark">{{ ticket.workflow.name|truncatewords:4 }}</td>
                             <td class="table-dark priority-{{ ticket.priority }}">{{ ticket.get_priority_display }}</td>
                             <td class="table-dark">{{ ticket.get_status_display }}</td>

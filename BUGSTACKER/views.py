@@ -5,12 +5,13 @@ from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.decorators import login_required
 from django.db import IntegrityError
 from django.core.exceptions import MultipleObjectsReturned, ObjectDoesNotExist
-from django.http import HttpResponse, HttpResponseRedirect, JsonResponse
+from django.http import HttpResponse, HttpResponseRedirect, JsonResponse, HttpResponseBadRequest
 from django.urls import reverse
 from .models import User, Project, Workflow, Ticket, Notification
 from django.views.decorators.csrf import csrf_exempt
 from .forms import NewTicketForm, NewWorkflowForm, NewProjectForm, EditProjectForm, EditWorkflowForm, EditTicketForm
 from django import forms
+from BUGSTACKER.helpers import generate_ticket_code, generate_wf_code, generate_project_code, extract_mrc_from_hrc
 
 
 # API Error Response Messages
@@ -107,7 +108,7 @@ def logout_view(request):
 @login_required
 def index(request):
     if request.method == "POST":
-        
+
         project_form = NewProjectForm(request.POST)
 
         # Verify and clean form data
@@ -115,8 +116,8 @@ def index(request):
 
             # Create project instance
             project = project_form.save(commit=False)
-            
-            project.code = Project.objects.all().count() + 1     # Fix
+
+            project.code = generate_project_code()
             project.completed = False
             project.pm = request.user
             project.status = Project.Status.ACTIVE
@@ -127,8 +128,6 @@ def index(request):
             raise Http404("Submitted data invalid.")
 
 
-
-    
     if request.method == "GET":
         # Get all user projects
         project_list = request.user.get_all_projects()
@@ -140,7 +139,7 @@ def index(request):
 
             # Set queryset for team_members
             project_form.fields.get('team_members').queryset = User.objects.filter(role="DEV")
-        
+
         else:
             project_form = None
 
@@ -184,7 +183,7 @@ def project_board(request, project_code):
                 new_ticket = ticket_form.save(commit=False)
 
                 # Populate private fields
-                new_ticket.code = new_ticket.workflow.tickets.count() + 2     # Fix - come up with hidden token or string (00-00-001, where 001 is the ticket portion and the code value is actually 1 which is the primary key)
+                new_ticket.code = generate_ticket_code(new_ticket)
                 new_ticket.creator = request.user
                 new_ticket.resolution = Ticket.Resolution.NOT_FIXED
 
@@ -201,7 +200,7 @@ def project_board(request, project_code):
         elif (request.POST['target'] == 'workflow' and request.POST['action'] == 'new'):
 
             print("----------- NEW WORKFLOW FORM -----------")
-            
+
             # Create new workflow instance
             workflow_form = NewWorkflowForm(request.POST)
 
@@ -213,7 +212,7 @@ def project_board(request, project_code):
 
                 # Populate private fields
                 new_workflow.project = project
-                new_workflow.code = project.workflows.count() + 1      # Fix
+                new_workflow.code = generate_wf_code(new_workflow)
                 new_workflow.archived = False
 
                 # Save new instance
@@ -292,43 +291,51 @@ def project_board(request, project_code):
             edit_workflow_form = EditWorkflowForm(request.POST)
 
             # Declare choices for form field ((code, name), ...)
-            wf_codes = [workflow.code for workflow in project.workflows.all()]
-            options = tuple([(wf_codes[i], project.workflows.all()[i].name) for i in range(len(project.workflows.all()))])
+            options = [(f"W{wf.code}", wf.name) for wf in project.workflows.all()]
             edit_workflow_form.fields.get('edit_workflow').choices = options
 
             # Clean Model Form and Model Validation
             if edit_workflow_form.is_valid():
 
                 # New Workflow data and vars
-                edit_workflow_code = edit_workflow_form.cleaned_data['edit_workflow']
+                target_wf_hrc = edit_workflow_form.cleaned_data['edit_workflow']       # FIX - rename variable and all instances to edit_workflow_id
                 new_name = edit_workflow_form.cleaned_data['name']
                 new_desc = edit_workflow_form.cleaned_data['description']
 
+                # Try to extract Machine Resource Codes                             TEST: should properly extract the mrc from the hrc and throw error if proper codes are not present
+                try:
+                    print(target_wf_hrc)
+                    mrcs = extract_mrc_from_hrc(target_wf_hrc)
+                    print(mrcs)
+                    wf_mrc = mrcs["W"]
+                    print(wf_mrc)
+                except Exception as e:
+                    print(e)
+                    return HttpResponseBadRequest("Unable to process form data")
+
                 # Check if workflow exists
-                if Workflow.objects.filter(code=edit_workflow_code).exists():
-                    
+                if project.workflows.filter(code=wf_mrc).exists():  # TEST: Should exist
+
                     # Get workflow object
-                    edit_workflow_obj = Workflow.objects.get(code=edit_workflow_code)
+                    target_wf_obj = project.workflows.filter(code=wf_mrc)[0]  # TEST: Should return valid & correct object
 
                     # Check if workflow belongs to project
-                    if edit_workflow_obj.project != project:
+                    if target_wf_obj.project != project:
                         raise Http404("Cannot edit this workflow from this page")
 
-                    if new_name != '' and new_name != edit_workflow_obj.name:
-                        edit_workflow_obj.name = new_name
+                    if new_name != '' and new_name != target_wf_obj.name:
+                        target_wf_obj.name = new_name
 
-                    if new_desc != '' and new_name != edit_workflow_obj.description:
-                        edit_workflow_obj.description = new_desc
+                    if new_desc != '' and new_name != target_wf_obj.description:
+                        target_wf_obj.description = new_desc
 
                     # Save new instance
-                    edit_workflow_obj.save()
+                    target_wf_obj.save()
 
                     return HttpResponseRedirect(reverse("project_board", args=(project_code,)))
 
             else:
-                print("ERRORS OCCURED HERE")
-                print(f'Form Error HTML generated {edit_workflow_form.errors}')
-                print(f"edit_workflow key is holding: {edit_workflow_form['edit_workflow']}")
+                print(f'Unable to submit EDIT WORKFLOW FORM {edit_workflow_form.errors}')
                 raise Http404("Submitted data invalid")
 
         else:
@@ -359,8 +366,7 @@ def project_board(request, project_code):
 
             # Edit Workflow Form
             edit_workflow_form = EditWorkflowForm()
-            wf_codes = [workflow.code for workflow in project.workflows.all()]
-            options = tuple([(wf_codes[i], project.workflows.all()[i].name) for i in range(len(project.workflows.all()))])
+            options = [(f"W{wf.code}", wf.name) for wf in project.workflows.all()]
             edit_workflow_form.fields.get('edit_workflow').choices = options
 
             edit_workflow_form.fields.get('edit_workflow').widget.attrs = {'class': 'form-control', 'size': 1, 'id': 'editWorkflowFormSelectWorkflow'}

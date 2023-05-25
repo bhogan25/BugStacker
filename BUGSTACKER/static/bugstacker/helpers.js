@@ -86,18 +86,20 @@ export function manageProjectChangeUI(action, eventTarget) {
 }
 
 
-export function populateWorkflowInputs(wfCode) {
+export function populateWorkflowInputs(target_wf_hrc) {
+
+  // Convert hrc to mrc
+  const target_wf_mrc = target_wf_hrc.slice(1)
 
   // Get form inputs
   const nameInput = document.getElementById('editWorkflowFormNameInput');
   const descriptionInput = document.getElementById('editWorkflowFormDescriptionInput');
 
   // Get selected workflow data
-  const wfName = document.querySelector(`h5[data-wf="${wfCode}"]`).dataset.name;
-  const wfDescription = document.querySelector(`p#wfdesc_${wfCode}`).innerHTML;
+  const wfName = document.querySelector(`h5[data-wf="${target_wf_mrc}"]`).dataset.name;
+  const wfDescription = document.querySelector(`p#wfdesc_${target_wf_mrc}`).innerHTML;
 
   // Update form inputs to reflect the selected workflow
   nameInput.value = wfName;
   descriptionInput.value = wfDescription;
-
 }

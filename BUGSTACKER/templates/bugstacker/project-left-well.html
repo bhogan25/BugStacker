@@ -1,3 +1,5 @@
+{% load extra_filters %}
+
 <div class="left-well col-xxl-3 d-none d-xxl-grid">
     <div class="pt-2 m-2 pb-2 px-4 overflow-y-auto">
         <h3>Workflows</h3>
@@ -18,15 +20,15 @@
                         {% endif %}
                         <p class="mb-1" id="wfdesc_{{ workflow.code }}">{{ workflow.description }}</p>
                         <div class="fw-light fs-6 text-body-color">{{ workflow.created }}</div>
-                        
-                        
+
+
                     </div>
                     {% if workflow.tickets.count == 1 %}
                     <span class="badge rounded-pill ticket-pill">{{ workflow.tickets.count }} Ticket</span>
                     {% else %}
                     <span class="badge rounded-pill ticket-pill">{{ workflow.tickets.count }} Tickets</span>
                     {% endif %}
-                    <div class="wf-code">Code: 0{{ workflow.code }}</div>
+                    <div class="wf-code">Code: {{ workflow.code|wf_hrc_short:workflow.id }}</div>
                     <input hidden id="wf_"/>
 
                     <div class="d-grid">
