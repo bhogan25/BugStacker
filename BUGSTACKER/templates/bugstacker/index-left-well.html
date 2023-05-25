@@ -2,7 +2,7 @@
 
 <div class="left-well col-lg-3 d-none d-lg-grid">
     <div class="pt-2 m-2 pb-2 px-4">
-        <h3 class="d-flex">Projects</h3>
+        <h3 class="d-flex">Project Index</h3>
         <hr>
         <div class="d-grid">
             {% if user.role == "PM" %}
@@ -11,13 +11,17 @@
                 </button>
             {% endif %}
         </div>
-        <div class="d-flex align-items-stretch">
-            <ol class="project-list">
+        <div class="d-grid align-items-stretch">
+            <ol class="list-group">
                 {% for project in user.get_all_projects %}
                     {% if project.status == "A" %}
-                    <a class="mt-2 rounded-1 background-theme text-theme border border-dark-subtle list-group-item list-group-item-action" href="#project-list-item-{{ project.code }}">
-                        {{ project.name }} ({{ project.code }})
-                    </a>
+                        <li class="list-group-item list-group-item-dark d-flex justify-content-between align-items-start position-relative">
+                            <div class="ms-2 d-grid">
+                                <h4 class="fw-bold my-2" data-wf="{{ project.code }}" data-name="{{ project.name }}">{{ project.name }}</h5>
+                                <div class="my-1 fw-light fs-6 text-body-color">Status: {{ project.get_status_display|underscore_to_title }}</div>
+                            </div>
+                            <div class="wf-code">Code: {{ project.code|project_hrc }}</div>
+                        </li>
                     {% endif %}
                 {% empty %}
                     <span class="fs-6">No projects</span>
