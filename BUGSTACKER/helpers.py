@@ -24,7 +24,7 @@ def generate_project_code():
 def extract_mrc_from_hrc(re_code):
 
     # Search for full match
-    reg_ex = "^(P[0-9]+)(-W[0-9]+){1}(-T[0-9]+)?|^(P[0-9]+)|^(W[0-9]+)"
+    reg_ex = "^(P[0-9]+)(-W[0-9]+){1}(-T[0-9]+)?|^(W[0-9]+){1}(-T[0-9]+)?|^(P[0-9]+)"
     match = re.fullmatch(reg_ex, re_code)
 
     # If match, load into dictionary and return
