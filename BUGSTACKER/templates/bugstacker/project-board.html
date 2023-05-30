@@ -165,14 +165,14 @@
 
         {% comment %} Nav Breadcrumb {% endcomment %}
         <nav class="mt-2 ms-2" style="--bs-breadcrumb-divider: url(&#34;data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='8' height='8'%3E%3Cpath d='M2.5 0L1 1.5 3.5 4 1 6.5 2.5 8l4-4-4-4z' fill='%236c757d'/%3E%3C/svg%3E&#34;);" aria-label="breadcrumb">
-            <ol class="breadcrumb">
+            <ol class="breadcrumb text-bg-dark border border-1 border-dark rounded-pill ps-3 py-0">
                 <li class="breadcrumb-item"><a href="{% url 'index' %}">Projects</a></li>
                 <li class="breadcrumb-item active"><a href="{% url 'project_board' project.code %}">{{ project.name }}</a></li>
             </ol>
         </nav>
 
-        <div class="mt-1 mx-4 mb-4 pt-2 px-4 pb-2 overflow-auto">
-            
+        <div class="mt-1 mb-4 pt-2 ps-3 pe-1 pb-2 overflow-auto">
+
             {% if project.status == "A" %}
                 <h1 class="text-light d-inline" id="projectName">{{ project.name }} </h1>
             {% elif project.status == "I" %}
@@ -181,7 +181,7 @@
 
 
                 {% comment %} Modal Buttons and Tools {% endcomment %}
-                <div class="my-2 p-2 d-flex tools">
+                <div class="p-1 d-flex tools">
                         <div class="tool-bin my-2">
                             <a class="tool" title="Project Information" data-bs-toggle="collapse" data-bs-target="#projectInfo" aria-expanded="false" style="text-decoration: none;">
                                 <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" style="stroke: rgba(0, 0, 0, 0)" class="bi bi-info-square-fill tool" viewBox="0 0 16 16">
@@ -253,7 +253,7 @@
                     </div>
                 </div>
 
-            <hr>
+            <hr class="mb-3 mt-0">
             {% comment %}<!-- Ticket cards -->{% endcomment %}
             <div style="display: none" id="ticketCards">
                 {% for ticket in project.all_tickets %}
@@ -287,7 +287,7 @@
             </div>
 
             {% comment %}<!-- Ticket table -->{% endcomment %}
-            <div style="display: block" class="bubble px-2 pt-2 border border-dark rounded-3 overflow-x-auto" id="ticketTable">
+            <div style="display: block" class="ticket-table-overflow-box bubble px-2 pt-2 border border-dark rounded-3 overflow-x-auto" id="ticketTable">
                 <table class="mb-0 pb-0 table table-dark table-hover">
                     <thead>
                         <tr class="table-dark">
