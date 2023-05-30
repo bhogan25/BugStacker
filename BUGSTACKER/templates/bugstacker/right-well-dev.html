@@ -1,9 +1,9 @@
-<h4>Projects</h4>
+<h5 class="mt-4">Projects</h5>
 <!-- active Projects -->
 <div>Projects Working: {{ user.projects_working.count }}</div>
 
 
-<h4>Current Tickets (All Projects)</h4>
+<h5 class="mt-4">Current Tickets (All Projects)</h5>
 <!-- tickets assigned & incompelete -->
 <div>Tickets Assigned: {{ user.tickets_assigned.all.not_done.count }}</div>
 
@@ -13,7 +13,7 @@
 <!-- tickets in working state -->
 <div>Working: {{ user.tickets_assigned.all.in_progress.count }}</div>
 
-<h4>Priority Distribution</h4>
+<h5 class="mt-4">Priority Distribution</h5>
 <!-- high priority tickets -->
 <div>High: {{ user.tickets_assigned.all.high_priority.count }}</div>
 
@@ -24,7 +24,7 @@
 <div>Low: {{ user.tickets_assigned.all.low_priority.count }}</div>
 
 
-<h4>Ticket History</h4>
+<h5 class="mt-4">Ticket History</h5>
 <!-- ticktets resolved -->
 <div>Tickets Resolved: {{ user.tickets_assigned.all.resolved.count }}</div>
 

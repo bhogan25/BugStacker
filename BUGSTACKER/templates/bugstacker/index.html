@@ -7,10 +7,17 @@
 
 
 {% block body %}
+    {% comment %} Everthing must go inside the center well div or issues will occur with dynamic sizing {% endcomment %}
     <div class="center-well col-lg-6">
-        <div data-bs-spy="scroll" data-bs-target="#project-list" data-bs-smooth-scroll="true" class="scrollspy" tabindex="0">
+
+        <div class="mt-4 mx-4">
+            <h1>Projects</h1>
+            <hr>
+        </div>
+
+        <div class="pe-2 m-4 project-column-overflow-box overflow-auto border border-0 rounded-4">
             {% for project in project_list %}
-                <div class="center bubble pt-3 m-4 pb-2 px-4 rounded-3 position-relative">
+                <div class="center bubble pt-3 mb-4 pb-2 px-4 rounded-4 position-relative">
                     <h1 id="project-list-item-{{ project.code }}">{{ project.name }}</h1>
                     <div>Code: {{ project.code|project_hrc }}</div>
                     <div>Started: {{ project.created }}</div>

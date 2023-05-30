@@ -164,14 +164,14 @@
 
 
         {% comment %} Nav Breadcrumb {% endcomment %}
-        <nav class="mt-2 ms-2" style="--bs-breadcrumb-divider: url(&#34;data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='8' height='8'%3E%3Cpath d='M2.5 0L1 1.5 3.5 4 1 6.5 2.5 8l4-4-4-4z' fill='%236c757d'/%3E%3C/svg%3E&#34;);" aria-label="breadcrumb">
-            <ol class="breadcrumb text-bg-dark border border-1 border-dark rounded-pill ps-3 py-0">
+        <nav class="mt-3  ms-2" style="--bs-breadcrumb-divider: url(&#34;data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='8' height='8'%3E%3Cpath d='M2.5 0L1 1.5 3.5 4 1 6.5 2.5 8l4-4-4-4z' fill='%236c757d'/%3E%3C/svg%3E&#34;);" aria-label="breadcrumb">
+            <ol class="breadcrumb text-bg-dark border border-1 border-dark rounded-pill mb-1 ps-3 py-0">
                 <li class="breadcrumb-item"><a href="{% url 'index' %}">Projects</a></li>
                 <li class="breadcrumb-item active"><a href="{% url 'project_board' project.code %}">{{ project.name }}</a></li>
             </ol>
         </nav>
 
-        <div class="mt-1 mb-4 pt-2 ps-3 pe-1 pb-2 overflow-auto">
+        <div class="mt-1 mb-4 pt-2 ps-3 pe-1 pb-2">
 
             {% if project.status == "A" %}
                 <h1 class="text-light d-inline" id="projectName">{{ project.name }} </h1>
@@ -255,39 +255,41 @@
 
             <hr class="mb-3 mt-0">
             {% comment %}<!-- Ticket cards -->{% endcomment %}
-            <div style="display: none" id="ticketCards">
-                {% for ticket in project.all_tickets %}
-                <div class="ticket-card center bubble pt-3 my-4 pb-2 px-4 rounded-3" id="t_{{ ticket.code }}">
-                    <h1>{{ ticket.name }}</h1>
-                    <div>Code: {{ ticket.code|ticket_hrc_short:ticket.id }}</div>
-                    <div>Workflow: {{ ticket.workflow.name }}</div>
-                    <div>Priority: <span class="priority-{{ ticket.priority }}">{{ ticket.get_priority_display }}</span></div>
-                    <div>Status: {{ ticket.get_status_display }}</div>
-                    <div>Created: {{ ticket.created }}</div>
-                    <div>Created by: {{ ticket.creator }}</div>
-                    <div>Target Complete: {{ ticket.target_complete }}</div>
-                    <div>Assignees: {{ ticket.string_assignees }}</div>
-                    <p>Raw assignees: {{ ticket.assignees }}</p>
-                    <p>{{ ticket.description }}</p>
-
-                    <!-- Render React Buttons -->
-                    <div 
-                        class="manage-ticket-btns" 
-                        id="manageTicketBtn_{{ ticket.code }}" 
-                        data-name="{{ ticket.name }}"
-                        data-wf="{{ ticket.workflow.code }}"
-                        data-status="{{ ticket.status }}" 
-                        data-resolution="{{ ticket.resolution }}">
+            <div class="pe-2 ticket-column-overflow-box overflow-auto">
+                <div style="display: none" id="ticketCards">
+                    {% for ticket in project.all_tickets %}
+                    <div class="ticket-card center bubble py-3 mb-4 px-4 rounded-3" id="t_{{ ticket.code }}">
+                        <h1>{{ ticket.name }}</h1>
+                        <div>Code: {{ ticket.code|ticket_hrc_short:ticket.id }}</div>
+                        <div>Workflow: {{ ticket.workflow.name }}</div>
+                        <div>Priority: <span class="priority-{{ ticket.priority }}">{{ ticket.get_priority_display }}</span></div>
+                        <div>Status: {{ ticket.get_status_display }}</div>
+                        <div>Created: {{ ticket.created }}</div>
+                        <div>Created by: {{ ticket.creator }}</div>
+                        <div>Target Complete: {{ ticket.target_complete }}</div>
+                        <div>Assignees: {{ ticket.string_assignees }}</div>
+                        <p>Raw assignees: {{ ticket.assignees }}</p>
+                        <p>{{ ticket.description }}</p>
+                
+                        <!-- Render React Buttons -->
+                        <div 
+                            class="manage-ticket-btns" 
+                            id="manageTicketBtn_{{ ticket.code }}" 
+                            data-name="{{ ticket.name }}"
+                            data-wf="{{ ticket.workflow.code }}"
+                            data-status="{{ ticket.status }}" 
+                            data-resolution="{{ ticket.resolution }}">
+                        </div>
+                
                     </div>
-
+                    {% empty %}
+                    <p>No Tickets...</p>
+                    {% endfor %}
                 </div>
-                {% empty %}
-                <p>No Tickets...</p>
-                {% endfor %}
             </div>
 
             {% comment %}<!-- Ticket table -->{% endcomment %}
-            <div style="display: block" class="ticket-table-overflow-box bubble px-2 pt-2 border border-dark rounded-3 overflow-x-auto" id="ticketTable">
+            <div style="display: block" class="ticket-column-overflow-box bubble px-2 pt-2 border border-dark rounded-3 overflow-x-auto" id="ticketTable">
                 <table class="mb-0 pb-0 table table-dark table-hover">
                     <thead>
                         <tr class="table-dark">

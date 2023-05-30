@@ -29,29 +29,22 @@
             {% endif %}
         <hr>
         <h2 class="my-3">Project Insights</h2>
-        <h4>Workflows</h4>
+        <h5>Workflows</h4>
         <div>Workflows: {{ project.workflows.count }}</div>
         <ul>
             <li>Active: {{ project.workflows.active.count }}</li>
             <li>Archived: {{ project.workflows.archived.count }}</li>
         </ul>
-        <h4>Tickets</h4>
-        <div>Tickets Open: {{ project.all_tickets.open.count }}</div>
+        <h5>Tickets</h4>
+        <div>Open: {{ project.all_tickets.open.count }}</div>
         <ul>
             <li>Create State: {{ project.all_tickets.not_started.count }}</li>
             <li>In Progress: {{ project.all_tickets.in_progress.count }}</li>
         </ul>
-        <div>Tickets Resolved: {{ project.all_tickets.resolved.count }}</div>
+        <div>Resolved: {{ project.all_tickets.resolved.count }}</div>
         <ul>
-            <li>Marked Fixed: {{ project.all_tickets.fixed.count }}</li>
-            <li>Marked No Issue: {{ project.all_tickets.no_issue.count }}</li>
+            <li>Fixed: {{ project.all_tickets.fixed.count }}</li>
+            <li>No Issue: {{ project.all_tickets.no_issue.count }}</li>
         </ul>
-        <h2 class="mt-4">User Insights</h2>
-        <hr>
-        {% if user.role == user.Role.PROJECT_MANAGER %}
-            {% include "BUGSTACKER/right-well-pm.html" with user=user %}
-        {% elif user.role == user.Role.DEVELOPER %}
-            {% include "BUGSTACKER/right-well-dev.html" with user=user %}
-        {% endif %}
     </div>
 </div>

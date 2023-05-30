@@ -5025,10 +5025,18 @@ a:hover {
   color: rgb(172, 0, 0);
 }
 
-.workflow-overflow-box {
-  height: 76vh;
+.left-well-list-group-overflow-box {
+  max-height: 76vh;
 }
 
-.ticket-table-overflow-box {
+.wf-list-item-width {
+  min-width: 16vw;
+}
+
+.ticket-column-overflow-box {
   max-height: 71vh;
+}
+
+.project-column-overflow-box {
+  max-height: 79vh;
 }/*# sourceMappingURL=styles.css.map */

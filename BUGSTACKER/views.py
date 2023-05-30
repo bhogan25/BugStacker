@@ -109,6 +109,13 @@ def logout_view(request):
 def index(request):
     if request.method == "POST":
 
+        # TODO: Check if user is in users model
+
+        # TODO: Check if user is PM
+
+        # Get all user projects
+        project_list = request.user.get_all_projects()
+
         project_form = NewProjectForm(request.POST)
 
         # Verify and clean form data
@@ -122,7 +129,14 @@ def index(request):
             project.pm = request.user
             project.status = Project.Status.ACTIVE
 
+            project.save()
+
             print("-----------NEW PROJECT SUBMITTED-----------")
+
+            return render(request, 'BUGSTACKER/index.html', {
+                "project_list": project_list,
+                "project_form": project_form,
+            })
 
         else:
             raise Http404("Submitted data invalid.")

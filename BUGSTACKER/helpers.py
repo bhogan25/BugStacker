@@ -6,14 +6,14 @@ def generate_ticket_code(new_ticket_instance):
     if new_ticket_instance.workflow.tickets.count() == 0:
         return 1
     else:
-        return max([t.code for t in new_ticket_instance.workflow.tickets]) + 1
+        return max([t.code for t in new_ticket_instance.workflow.tickets.all()]) + 1
 
 # Ensures new Workflow code is not duplicated
 def generate_wf_code(new_wf_instance):
     if new_wf_instance.project.workflows.count() == 0:
         return 0
     else: 
-        return max([wf.code for wf in new_wf_instance.project.workflows]) + 1
+        return max([wf.code for wf in new_wf_instance.project.workflows.all()]) + 1
 
 # Ensures new Project code is not duplicated
 def generate_project_code():
