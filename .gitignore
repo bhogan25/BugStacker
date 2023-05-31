@@ -6,7 +6,9 @@
 # Ignore file types
 *.pyc
 *.css.map
+*.css
 *.env
+
 
 # Ignore files
 shell.txt
