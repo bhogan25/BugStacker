@@ -1,5 +1,5 @@
 // Execute after content has been loaded
-import { setAllDisplayProps, returnProjectBodyObject, manageProjectChangeUI, populateWorkflowInputs } from './helpers.js';
+import { setAllDisplayProps, returnProjectBodyObject, manageProjectChangeUI, populateEditWorkflowInputs } from './helpers.js';
 
 document.addEventListener('DOMContentLoaded', function () {
 
@@ -50,11 +50,11 @@ document.addEventListener('DOMContentLoaded', function () {
 
   // Populate initial form inputs for selected workflow
   const workflowSelectInput = document.getElementById('editWorkflowFormSelectWorkflow');
-  populateWorkflowInputs(workflowSelectInput.value);
+  populateEditWorkflowInputs(workflowSelectInput.value);
 
   // Apply Event Handler to dynamically populate inputs
   workflowSelectInput.addEventListener('change', () => {
-    populateWorkflowInputs(workflowSelectInput.value);
+    populateEditWorkflowInputs(workflowSelectInput.value);
   })
 
 

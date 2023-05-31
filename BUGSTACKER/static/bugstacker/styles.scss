@@ -277,6 +277,14 @@ a:hover {
     color: $secondary-theme;
 }
 
+.main-content-overflow {
+    height: 100vh;
+}
+
+.left-well-width {
+    width: 95%;
+}
+
 .left-well-list-group-overflow-box { 
     max-height: 76vh;
 }
@@ -286,9 +294,17 @@ a:hover {
 }
 
 .ticket-column-overflow-box {
-    max-height: 71vh;
+    max-height: 62vh;
 }
 
 .project-column-overflow-box {
     max-height: 79vh;
+}
+
+.notifications-overflow-box {
+    height: 27vh;
+}
+
+.filter-btn {
+    min-width: 80px;
 }

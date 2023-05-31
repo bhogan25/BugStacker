@@ -9,5 +9,6 @@
         {% elif user.role == user.Role.DEVELOPER %}
             {% include "BUGSTACKER/right-well-dev.html" with user=user %}
         {% endif %}
+        {% include "BUGSTACKER/notifications.html" %}
     </div>
 </div>

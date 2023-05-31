@@ -50,7 +50,7 @@
                         <form action="{% url 'project_board' project.code %}" method="post">
                             {% csrf_token %}
                             {{ new_workflow_form }}
-                            
+
                             <div class="modal-footer mt-4">
                                 <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Exit</button>
                                 <button type="submit" class="btn btn-primary">Create Workflow</button>
@@ -74,7 +74,7 @@
                             <form action="{% url 'project_board' project.code %}" method="post" id="editProjectForm">
                                 {% csrf_token %}
                                 {{ edit_project_form }}
-                                
+
                                 <div class="modal-footer mt-4">
                                     <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Exit</button>
                                     <button type="submit" class="btn btn-primary">Submit Changes</button>
@@ -162,6 +162,7 @@
             </div>
         </div>
 
+        {% comment %} Alerts moved to notifications.html {% endcomment %}
 
         {% comment %} Nav Breadcrumb {% endcomment %}
         <nav class="mt-3  ms-2" style="--bs-breadcrumb-divider: url(&#34;data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='8' height='8'%3E%3Cpath d='M2.5 0L1 1.5 3.5 4 1 6.5 2.5 8l4-4-4-4z' fill='%236c757d'/%3E%3C/svg%3E&#34;);" aria-label="breadcrumb">
@@ -240,7 +241,7 @@
                         </div>
                     </div>
 
-                    {% comment %}<!-- Team Members -->{% endcomment %}
+                    {% comment %} Team Members {% endcomment %}
                     <div class="collapse w-100 my-2" id="projectTeam">
                         <div class="bg-dark card card-body">
                             <h4>Project Team</h4>
@@ -254,33 +255,41 @@
                 </div>
 
             <hr class="mb-3 mt-0">
-            {% comment %}<!-- Ticket cards -->{% endcomment %}
-            <div class="pe-2 ticket-column-overflow-box overflow-auto">
+            <h3 class="mb-3" data-ticketStatus="open">Tickets</h3>
+
+            {% comment %} Filter Buttons {% endcomment %}
+            <div class="mb-3 justify-content-around d-flex">
+                <button type="button" class="btn btn-primary btn-sm mx-1 filter-btn">Open</button>
+                <button type="button" class="btn btn-outline-danger btn-sm mx-1 filter-btn">Closed</button>
+                <button type="button" class="btn btn-outline-info btn-sm mx-1 filter-btn">My Tickets</button>
+                <button type="button" class="btn btn-outline-success btn-sm mx-1 filter-btn">Priority</button>
+            </div>
+
+            {% comment %} Ticket cards {% endcomment %}
+            <div class="pe-2 ticket-column-overflow-box overflow-auto border-0 rounded-3">
                 <div style="display: none" id="ticketCards">
                     {% for ticket in project.all_tickets %}
-                    <div class="ticket-card center bubble py-3 mb-4 px-4 rounded-3" id="t_{{ ticket.code }}">
-                        <h1>{{ ticket.name }}</h1>
+                    <div class="ticket-card center bubble py-3 mb-4 px-4 rounded-3" id="{{ ticket.code|ticket_hrc_short:ticket.id }}">
+                        <h1 data-ticket-name="{{ ticket.name }}">{{ ticket.name }}</h1>
                         <div>Code: {{ ticket.code|ticket_hrc_short:ticket.id }}</div>
                         <div>Workflow: {{ ticket.workflow.name }}</div>
                         <div>Priority: <span class="priority-{{ ticket.priority }}">{{ ticket.get_priority_display }}</span></div>
-                        <div>Status: {{ ticket.get_status_display }}</div>
+                        <div>Status: <span data-ticket-status="{{ ticket.get_status_display }}">{{ ticket.get_status_display }}</span></div>
                         <div>Created: {{ ticket.created }}</div>
                         <div>Created by: {{ ticket.creator }}</div>
                         <div>Target Complete: {{ ticket.target_complete }}</div>
-                        <div>Assignees: {{ ticket.string_assignees }}</div>
-                        <p>Raw assignees: {{ ticket.assignees }}</p>
-                        <p>{{ ticket.description }}</p>
-                
-                        <!-- Render React Buttons -->
+                        <div data-ticket-assignees="{{ ticket.slug_assignees }}">Assignees: {{ ticket.string_assignees }}</div>
+                        <p data-ticket-description="{{ ticket.description }}">{{ ticket.description }}</p>
+
+                        {% comment %} Render React Buttons {% endcomment %}
                         <div 
-                            class="manage-ticket-btns" 
-                            id="manageTicketBtn_{{ ticket.code }}" 
+                            class="manage-ticket-btns"
+                            data-ticket-hrc="{{ ticket.code|ticket_hrc_short:ticket.id }}"
                             data-name="{{ ticket.name }}"
-                            data-wf="{{ ticket.workflow.code }}"
-                            data-status="{{ ticket.status }}" 
+                            data-status="{{ ticket.status }}"
                             data-resolution="{{ ticket.resolution }}">
                         </div>
-                
+
                     </div>
                     {% empty %}
                     <p>No Tickets...</p>
@@ -288,38 +297,43 @@
                 </div>
             </div>
 
-            {% comment %}<!-- Ticket table -->{% endcomment %}
+            {% comment %} Ticket table {% endcomment %}
             <div style="display: block" class="ticket-column-overflow-box bubble px-2 pt-2 border border-dark rounded-3 overflow-x-auto" id="ticketTable">
                 <table class="mb-0 pb-0 table table-dark table-hover">
                     <thead>
                         <tr class="table-dark">
                             <th class="align-middle table-dark">Ticket Name</th>
-                            <th class="align-middle table-dark">Code</th>
+                            <th class="align-middle table-dark" style="min-width: 70px">Code</th>
                             <th class="align-middle table-dark">Workflow</th>
                             <th class="align-middle table-dark">Priority</th>
-                            <th class="align-middle table-dark">Status</th>
+                            <th class="align-middle table-dark" style="min-width: 95px">Status</th>
                             <th class="align-middle table-dark">Target Complete</th>
                             <th class="align-middle table-dark">Assignees</th>
-                            <th class="align-middle table-dark"></th>
                         </tr>
                     </thead>
-                        <tbody>
+                    <tbody>
                         {% for ticket in project.all_tickets %}
-                        <tr class="table-dark">
-                            <td class="table-dark">{{ ticket.name|truncatewords:4 }}</td>
-                            <td class="table-dark">{{ ticket.code|ticket_hrc_short:ticket.id }}</td>
-                            <td class="table-dark">{{ ticket.workflow.name|truncatewords:4 }}</td>
-                            <td class="table-dark priority-{{ ticket.priority }}">{{ ticket.get_priority_display }}</td>
-                            <td class="table-dark">{{ ticket.get_status_display }}</td>
-                            <td class="table-dark">{{ ticket.target_complete|date:"m/d/y" }}</td>
-                            <td class="table-dark" title="{{ ticket.string_assignees }}">{{ ticket.string_assignees|truncatewords:4 }}</td>
-                            <td class="table-dark">
-                                <button class="manageTicketBtn" data-action="edit" data-project="{{ project.code }}" data-workflow="{{ ticket.workflow.code }}" data-target="{{ ticket.code }}">Manage</button>
-                            </td>
-                        </tr>
-                        {% empty %}
-                        <p>No Tickets...</p>
+                            <tr class="table-dark" id="{{ ticket.code|ticket_hrc_short:ticket.id }}">
+                                <td class="table-dark">{{ ticket.name|truncatewords:4 }}</td>
+                                <td class="table-dark">{{ ticket.code|ticket_hrc_short:ticket.id }}</td>
+                                <td class="table-dark">{{ ticket.workflow.name|truncatewords:4 }}</td>
+                                <td class="table-dark priority-{{ ticket.priority }}">{{ ticket.get_priority_display }}</td>
+                                <td class="table-dark" data-ticket-status="{{ ticket.get_status_display }}">{{ ticket.get_status_display }}</td>
+                                <td class="table-dark">{{ ticket.target_complete|date:"m/d/y" }}</td>
+                                <td class="table-dark" title="{{ ticket.string_assignees }}">{{ ticket.string_assignees|truncatewords:4 }}</td>
+                            </tr>
                         {% endfor %}
+                        {% if project.all_tickets.count == 0 %}
+                            <tr class="table-dark">
+                                <td class="table-dark">No Tickets...</td>
+                                <td class="table-dark"></td>
+                                <td class="table-dark"></td>
+                                <td class="table-dark priority-{{ ticket.priority }}"></td>
+                                <td class="table-dark"></td>
+                                <td class="table-dark"></td>
+                                <td class="table-dark" title="{{ ticket.string_assignees }}"></td>
+                            </tr>
+                        {% endif %}
                     </tbody>
                 </table>
             </div>

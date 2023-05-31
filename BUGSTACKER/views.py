@@ -182,7 +182,7 @@ def project_board(request, project_code):
 
     if request.method == "POST":
 
-        # Check which form is being submitted (edit project | new workflow | new ticket)
+        # Check which form is being submitted (new ticket | new workflow | edit project)
         if (request.POST['target'] == 'ticket' and request.POST['action'] == 'new'):
 
             print("----------- NEW TICKET FORM -----------")

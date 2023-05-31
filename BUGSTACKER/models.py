@@ -79,7 +79,7 @@ class Project(models.Model):
         all_members = team_members | pm
 
         return all_members
-    
+
     def __str__(self):
         return f"{self.name}"
 
@@ -197,7 +197,13 @@ class Ticket(models.Model):
         if self.assignees.all().count() > 0:
             return ", ".join([user.full_name() for user in self.assignees.all()])
         else:
-            return "None"
+            return None
+
+    def slug_assignees(self):
+        if self.assignees.all().count() > 0:
+            return "-".join([user.full_name() for user in self.assignees.all()])
+        else:
+            return None
 
     def __str__(self):
         return f"Ticket {self.workflow.project.code}-{self.workflow.code}-{self.code}"

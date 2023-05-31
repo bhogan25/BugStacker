@@ -3,39 +3,42 @@
         <h2>Hello, <strong>{{ user.first_name }}</strong></h2>
         <div>Role: <strong>{{ user.role }}</strong></div>
         <hr>
+        
         {% comment %} Project Manager Tools {% endcomment %}
-            {% if user.role == "PM" %}
-                <div class="d-flex mt-1">
-                    <div class="pm-tools btn-group mt-1">
-                        <button type="button" class="btn btn-outline-light d-inline tool" data-bs-toggle="modal" data-bs-target="#editProjectFormModal">
-                            Edit Project
-                        </button>
-                        
-                        {% if project.status == "A" %}
-                        <button type="button" class="btn btn-outline-warning d-inline tool"data-action="change_status" data-target="{{ project.code }}" data-status="{{ project.status }}" id="changeProjectStatusBtn">
-                            Deactivate
-                        </button>
-                        {% elif project.status == "I" %}
-                        <button type="button" class="btn btn-outline-warning d-inline tool" data-action="change_status" data-target="{{ project.code }}" data-status="{{ project.status }}" id="changeProjectStatusBtn">
-                            Reactivate
-                        </button>
-                        {% endif %}
-                        
-                        <button type="button" class="btn btn-outline-danger d-inline tool" data-action="complete" data-target="{{ project.code }}" id="completeProjectBtn">
-                            Complete
-                        </button>
-                    </div>
+        {% if user.role == "PM" %}
+            <h5>Manager Tools</h3>
+            <div class="d-flex justify-content-center mt-1">
+                <div class="pm-tools btn-group mt-1">
+                    <button type="button" class="btn btn-outline-light d-inline tool" data-bs-toggle="modal" data-bs-target="#editProjectFormModal">
+                        Edit Project
+                    </button>
+                    
+                    {% if project.status == "A" %}
+                    <button type="button" class="btn btn-outline-warning d-inline tool"data-action="change_status" data-target="{{ project.code }}" data-status="{{ project.status }}" id="changeProjectStatusBtn">
+                        Deactivate
+                    </button>
+                    {% elif project.status == "I" %}
+                    <button type="button" class="btn btn-outline-warning d-inline tool" data-action="change_status" data-target="{{ project.code }}" data-status="{{ project.status }}" id="changeProjectStatusBtn">
+                        Reactivate
+                    </button>
+                    {% endif %}
+                    
+                    <button type="button" class="btn btn-outline-danger d-inline tool" data-action="complete" data-target="{{ project.code }}" id="completeProjectBtn">
+                        Complete
+                    </button>
                 </div>
-            {% endif %}
-        <hr>
+            </div>
+            <hr>
+        {% endif %}
+
         <h2 class="my-3">Project Insights</h2>
-        <h5>Workflows</h4>
+        <h5>Workflows</h5>
         <div>Workflows: {{ project.workflows.count }}</div>
         <ul>
             <li>Active: {{ project.workflows.active.count }}</li>
             <li>Archived: {{ project.workflows.archived.count }}</li>
         </ul>
-        <h5>Tickets</h4>
+        <h5>Tickets</h5>
         <div>Open: {{ project.all_tickets.open.count }}</div>
         <ul>
             <li>Create State: {{ project.all_tickets.not_started.count }}</li>
@@ -46,5 +49,7 @@
             <li>Fixed: {{ project.all_tickets.fixed.count }}</li>
             <li>No Issue: {{ project.all_tickets.no_issue.count }}</li>
         </ul>
+
+        {% include "BUGSTACKER/notifications.html" %}
     </div>
 </div>

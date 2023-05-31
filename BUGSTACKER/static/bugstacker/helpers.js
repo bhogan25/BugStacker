@@ -86,7 +86,7 @@ export function manageProjectChangeUI(action, eventTarget) {
 }
 
 
-export function populateWorkflowInputs(target_wf_hrc) {
+export function populateEditWorkflowInputs(target_wf_hrc) {
 
   // Convert hrc to mrc
   const target_wf_mrc = target_wf_hrc.slice(1)
@@ -102,4 +102,14 @@ export function populateWorkflowInputs(target_wf_hrc) {
   // Update form inputs to reflect the selected workflow
   nameInput.value = wfName;
   descriptionInput.value = wfDescription;
+}
+
+
+export function populateEditTicketInputs(target_ticket_hrc) {
+
+  // Convert hrc to mrc
+  const target_ticket_mrc = target_ticket_hrc.split("-")[2].slice(1)
+  const target_wf_mrc = target_ticket_hrc.split("-")[1].slice(1)
+
+  
 }

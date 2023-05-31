@@ -18,7 +18,7 @@
     {% block script %}{% endblock %}
 </head>
 <body>
-    <!-- Navbar -->
+  {% comment %} Navbar {% endcomment %}
     <nav class="navbar navbar-dark navbar-expand-lg bg-dark">
         <div class="container-fluid">
           <a class="navbar-brand" href="{% url 'index' %}">
@@ -30,7 +30,7 @@
           </button>
           <div class="collapse navbar-collapse" id="navbarNavDropdown">
             <ul class="navbar-nav">
-                <!-- Dropdown -->
+                {% comment %} Dropdown {% endcomment %}
                 <li class="nav-item dropdown">
                     <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
                         Project Boards
@@ -57,13 +57,12 @@
         </div>
       </nav>
 
-      {% comment %}<!-- Include project form modal -->{% endcomment %}
+      {% comment %} Include project form modal {% endcomment %}
       {% if user.role == "PM" %}
         {% include "BUGSTACKER/new-project-modal.html" with user=user project=project project_form=project_form %}
       {% endif %}
 
-      <div class="container-xxl main-content">
-        <div id="liveAlertPlaceholder"></div>
+      <div class="container-xxl main-content overflow-y-auto main-content-overflow">
         <div class="row primary-row justify-content-center">
           {% block left %}{% endblock %}
           {% block body %}{% endblock %}
