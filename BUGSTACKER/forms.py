@@ -107,6 +107,7 @@ class NewTicketForm(forms.ModelForm):
 class EditTicketForm(forms.ModelForm):
     action = forms.CharField(widget=forms.HiddenInput(attrs={'value': 'edit'}))
     target = forms.CharField(widget=forms.HiddenInput(attrs={'value': 'ticket'}))
+    ticket_short_hrc = forms.CharField(widget=forms.HiddenInput(attrs={'value': ''}))
 
     class Meta:
         model = Ticket

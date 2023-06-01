@@ -3,14 +3,6 @@ import { setAllDisplayProps, returnProjectBodyObject, manageProjectChangeUI, pop
 
 document.addEventListener('DOMContentLoaded', function () {
 
-  // Boostrap Modal
-  // const myModal = document.getElementById('myModal')
-  // const myInput = document.getElementById('myInput')
-  //   myModal.addEventListener('shown.bs.modal', () => {
-  //   myInput.focus()
-  // })
-
-
   // Toggle Task View Mode
 
   // Get card and table buttons

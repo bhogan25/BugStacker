@@ -39,7 +39,7 @@ class ChangeTicketStatusBtn extends React.Component {
         return (
             <button onClick={this.props.handleClick} 
                     type="button" 
-                    className="btn btn-success me-4 tool" 
+                    className="btn btn-success me-4 tool advance-status-btn" 
                     style={{display: this.props.propDipslay}} 
                     title={this.props.propsTitle} 
                     disabled={this.props.ticketStatus === "D" ? true : false} 
@@ -77,7 +77,13 @@ class ManageTicketBtnGroup extends React.Component {
     resolveTicket() {
 
         // Redefine sendNewStatus() so anon functions can access
-        const send = this.sendNewStatus;
+        const sendNewStatus = this.sendNewStatus;
+
+        // Get Resolution Modal Options
+        const options = document.getElementsByName("resolution");
+
+        // Clear options when modal triggers
+        options.forEach((option) => option.checked = false);
 
         // Get Modal Header and Submit button
         const ticketModalLabel = document.getElementById("ticketResolutionModalLabel");
@@ -101,8 +107,6 @@ class ManageTicketBtnGroup extends React.Component {
         }
 
         // Event listener on radio select options to toggle submit btn
-        const options = document.getElementsByName("resolution");
-
         const toggleSubmitBtn = function () {
             if (radioSelection()) {
                 submitBtn.disabled = false;
@@ -120,15 +124,29 @@ class ManageTicketBtnGroup extends React.Component {
             let selectedOption = radioSelection();
 
             if (selectedOption) {
-                send("D", selectedOption)
+                sendNewStatus("D", selectedOption)
             }
+        }
+
+        // Add event listener on submit button to sendNewStatus
+        submitBtn.addEventListener("click", submitResolution)
+
+
+        // Get a reference to the modal element
+            const modal = document.getElementById('ticketResolutionModal');
+
+        // Clean-up submitResolution event and remove self event
+        const cleanUpOnModalClose = function () {
 
             // Remove event listener on click
             submitBtn.removeEventListener("click", submitResolution)
+
+            // Remove self event
+            modal.removeEventListener("hidden.bs.modal", cleanUpOnModalClose)
         }
 
-        // Submit event listener
-        submitBtn.addEventListener("click", submitResolution)
+        // Add an event listener for the 'hidden.bs.modal' event to remove submitResolution()
+        modal.addEventListener('hidden.bs.modal', cleanUpOnModalClose);
     }
 
     // Fetch Request for Ticket Status
@@ -136,8 +154,8 @@ class ManageTicketBtnGroup extends React.Component {
 
         // Get Project, Workflow Code
         const projectCode = window.location.href.split('/').pop();
-        const workflowCode = this.props.ticketHrc.split('-')[0].slice(1);               // FIX: Change to harvest from ticket_hcr
-        const ticketCode = this.props.ticketHrc.split('-')[1].slice(1);                 // FIX: Change to harvest from ticket_hcr
+        const workflowCode = this.props.ticketHrc.split('-')[0].slice(1);
+        const ticketCode = this.props.ticketHrc.split('-')[1].slice(1);
 
         // Get Status div for Card and Table Row Ticket
         const ticketStatusElements = document.querySelectorAll(`#${this.props.ticketHrc} [data-ticket-status]`)
@@ -166,12 +184,11 @@ class ManageTicketBtnGroup extends React.Component {
                     ticketStatus: newStatus,
                 });
                 console.log(data.message)
-                // Update ticket status for Card
+                appendAlert(`Ticket ${this.props.ticketHrc} has been set to ${STO[newStatus]}`, 'success')
+
+                // Update ticket status for Card and Table
                 ticketStatusElements.forEach((element) => element.innerHTML = `${STO[newStatus]}`)
 
-                // Update ticket status for Card
-
-                appendAlert(`Ticket ${this.props.ticketHrc} has been set to ${STO[newStatus]}`, 'success')
             } else {
                 // Server Error, do not update UI, alert
                 console.error(`${data.error}`)
@@ -223,6 +240,7 @@ class ManageTicketBtnGroup extends React.Component {
         const modalTitle = document.querySelector("#editTicketFormModalLabel")
         const textareaDescription = document.querySelector("#editTicketFormModal textarea[name='description']");
         const selectAssignees = document.querySelector("#editTicketFormModal select[name='assignees']");
+        const inputTicketHrc = document.querySelector("#editTicketFormModal input[name='ticket_short_hrc']");
 
         // Get Ticket Assingees, Description, and Title
         const ticketName = document.querySelector(`#${this.props.ticketHrc} h1[data-ticket-name]`).dataset['ticketName'];
@@ -232,7 +250,7 @@ class ManageTicketBtnGroup extends React.Component {
         let currentAssignees;
 
         if (currentAssigneesRaw.includes("-")) {
-            currentAssignees = currentAssigneesRaw.split("-")
+            currentAssignees = currentAssigneesRaw.split("-");
         } else {
             currentAssignees = currentAssigneesRaw;
         }
@@ -240,9 +258,10 @@ class ManageTicketBtnGroup extends React.Component {
         // Clear/Reset Select Values
         const selectAssigneesArray = Array.from(selectAssignees.children)
         selectAssigneesArray.forEach((option) => option.selected = false);
-        
+
         // Set form values to ticket data values
         modalTitle.innerHTML = `Edit Ticket: ${ticketName}`;
+        inputTicketHrc.value = this.props.ticketHrc;
         textareaDescription.value = currentDescription;
 
         for (let i = 0; i < selectAssignees.children.length; i++) {

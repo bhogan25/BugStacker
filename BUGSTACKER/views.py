@@ -409,23 +409,18 @@ def project_board(request, project_code):
 
 @csrf_exempt
 @login_required
-def edit_ticket(request, project_code, ticket_code):
+def edit_ticket(request, project_code):
 
-    if request.POST.method == "POST" and request.POST['target'] == 'ticket' and request.POST['action'] == 'edit':
+    if request.method == "POST" and request.POST['target'] == 'ticket' and request.POST['action'] == 'edit':
 
         print("----------- EDIT TICKET FORM -----------")
 
-        # Get Project and ticket if exists
+        # Get Project
         project = get_object_or_404(Project, code=project_code)
-        target_ticket_object = get_object_or_404(Ticket, code=ticket_code)
 
         # Block request if project completed
         if project.completed == True:
-            return Http404("Could not process request")
-
-        # Block request if Ticket status is "DONE"
-        if target_ticket_object.status == "DONE": 
-            return Http404("Cannot edit closed ticket")
+            raise Http404("Could not process request")
 
         # Block request if requester is not on project team or is not PM
         if request.user not in project.team_members.all() and request.user != project.pm:
@@ -437,28 +432,50 @@ def edit_ticket(request, project_code, ticket_code):
         if edit_ticket_form.is_valid():
 
             # Get form data
+            ticket_hrc = edit_ticket_form.cleaned_data['ticket_short_hrc']
             new_description = edit_ticket_form.cleaned_data['description']
             new_assignees = edit_ticket_form.cleaned_data['assignees']
 
+            # Check if ticket HRC is valid
+            try:
+                mrc = extract_mrc_from_hrc(ticket_hrc)
+                target_wf_mrc = mrc["W"]
+                target_ticket_mrc = mrc["T"]
+            except Exception as e:
+                raise Http404(e)
+
+            # Check if ticket exists
+            try:
+                target_ticket_obj = Workflow.objects.get(project=project, code=target_wf_mrc).tickets.get(code=target_ticket_mrc)
+            except MultipleObjectsReturned:
+                raise Http404("")
+            except ObjectDoesNotExist:
+                raise Http404("Ticket does not exist")
+
+             # Block request if Ticket status is "DONE"
+            if target_ticket_obj.status == "DONE": 
+                raise Http404("Cannot edit closed ticket")
+
             # Check if description is same as before, or if it is blank
-            if new_description != '' and new_description != target_ticket_object.description:
-                target_ticket_object.description = new_description
+            if new_description != '' and new_description != target_ticket_obj.description:
+                target_ticket_obj.description = new_description
 
             # Check if new assingees are sumbitted
             if new_assignees.exists():
 
                     # Var declarations
-                    team_members = project.team_members.all()
-                    existing_assignees = target_ticket_object.assignees
+                    team_members = project.all_members()
+                    existing_assignees = target_ticket_obj.assignees.all()
 
-                    print(f"Existing team members: {team_members}")
-                    print(f"Edisting ticket assignees {target_ticket_object.assignees}")
-                    print(f"Proposed ticket assignees: {new_assignees}")
+                    # User these later for Notification
+                    # print(f"Existing team members: {team_members}")
+                    # print(f"Existing ticket assignees {target_ticket_obj.assignees.all()}")
+                    # print(f"Proposed ticket assignees: {new_assignees}")
 
                     # Check if new members are on project team
                     for user in new_assignees:
                         if user not in team_members:
-                            return Http404("Proposed assignees not on project team")
+                            raise Http404("Proposed assignees not on project team")
 
                     # Users removed
                     removed = [user for user in existing_assignees if user not in new_assignees]
@@ -469,8 +486,8 @@ def edit_ticket(request, project_code, ticket_code):
                     print(f"Added Assignees: {added}")
 
                     # Save new ticket and set new assignees
-                    target_ticket_object.save()
-                    target_ticket_object.assingees.set(new_assignees)
+                    target_ticket_obj.save()
+                    target_ticket_obj.assignees.set(new_assignees)
 
         return HttpResponseRedirect(reverse("project_board", args=(project_code,)))
 
@@ -561,6 +578,10 @@ def api_ticket(request, action, project_code, workflow_code, ticket_code):
     # Receives status update (Created -> In Progress, or In Progress -> Resolved)
 
     # If In Progress -> Resolved, resolution is required
+    data = json.loads(request.body)
+
+    print(f"New Status Requested: {data['ticketStatus']}")
+    print(f"Resolution: {data['resolution']}")
 
     try:
         ticket = Project\
@@ -574,5 +595,10 @@ def api_ticket(request, action, project_code, workflow_code, ticket_code):
     except Exception as e:
         return JsonResponse(JSON_ERROR_MESSAGES["unknown_error"])
 
-    print(f"{action.capitalize()} request made on Ticket: {ticket.name}, Code: {ticket.code}")
-    return JsonResponse({"message": f"SERVER: {action.capitalize()} request made on Ticket: {ticket.name}, Code: {ticket.code}"})
+
+    if data['resolution']:
+        print(f"{action.capitalize()} request made on Ticket: {ticket.name}, Code: {ticket.code}")
+        return JsonResponse({"message": f"SERVER: {action.capitalize()} request made on Ticket: {ticket.name}, Code: {ticket.code}"})
+    else:
+        print(f"Resolve request made on Ticket: {ticket.name}, Code: {ticket.code}")
+        return JsonResponse({"message": f"SERVER: Resolve request made on Ticket: {ticket.name}, Code: {ticket.code}"})

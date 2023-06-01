@@ -36,4 +36,4 @@ def extract_mrc_from_hrc(re_code):
         codes = {i[:1]: i[1:] for i in sections}
         return codes
     else:
-        return False
+        raise Exception("HRC code does not match standard pattern")
