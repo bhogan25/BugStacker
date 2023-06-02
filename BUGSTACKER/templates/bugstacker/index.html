@@ -10,6 +10,61 @@
     {% comment %} Everthing must go inside the center well div or issues will occur with dynamic sizing {% endcomment %}
     <div class="center-well col-lg-6">
 
+        {% if user.role == "PM" %}
+            {% comment %} New Project Form Modal {% endcomment %}
+            <div class="modal fade" id="projectFormModal" tabindex="-1" aria-labelledby="projectFormModalLabel" aria-hidden="true">
+                <div class="modal-dialog">
+                    <div class="modal-content bg-dark border border-black">
+                        <div class="modal-header">
+                            <h1 class="modal-title fs-5" id="projectFormModalLabel">New Project</h1>
+                            <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                        </div>
+                        <div class="modal-body">
+                            <form action="{% url 'index' %}" method="post">
+                                {% csrf_token %}
+                                {{ project_form }}
+                                <div class="modal-footer">
+                                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                                    <input type="submit" class="btn btn-primary bg-primary" value="Create Project" />
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        {% endif %}
+
+        {% comment %} Project History Modal {% endcomment %}
+        <div class="modal fade " id="projectHistoryModal" tabindex="-1" aria-labelledby="projectHistoryModalLabel" aria-hidden="true">
+            <div class="modal-dialog modal-dialog-scrollable">
+                <div class="modal-content bg-dark border border-black">
+                    <div class="modal-header">
+                        <h1 class="modal-title fs-5" id="projectHistoryModalLabel">Completed Project History</h1>
+                        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body">
+                        <ul class="list-group">
+                            {% for project in history %}
+                                <li class="list-group-item">
+                                    <div class="d-flex w-100 justify-content-between">
+                                        <h5 class="mb-1">{{ project.name }}</h5>
+                                        <small>Code: {{ project.long_hrc }}</small>
+                                    </div>
+                                    <p class="mb-1">{{ project.description|truncatewords:35}}</p>
+                                    <small>Project Manager: {{ project.pm.full_name }}</small>
+                                </li>
+                            {% empty %}
+                                <span>No project history...</span>
+                            {% endfor %}
+                          </ul>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                    </div>
+                  </div>
+            </div>
+        </div>
+
         <div class="mt-4 mx-4">
             <h1>Projects</h1>
             <hr>

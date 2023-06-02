@@ -6,25 +6,52 @@
         <hr>
         <div class="d-grid">
             {% if user.role == "PM" %}
-                <button type="button" class="tool btn btn-light mb-3" title="Edit Workflow" data-bs-toggle="modal" data-bs-target="#projectFormModal">
+                <button type="button" class="btn btn-light mb-2 btn-large" title="Edit Workflow" data-bs-toggle="modal" data-bs-target="#projectFormModal">
                     Create New Project
                 </button>
             {% endif %}
+            <button type="button" class="btn btn-warning mb-3 btn-sm" title="Edit Workflow" data-bs-toggle="modal" data-bs-target="#projectHistoryModal">
+                Project History
+            </button>
         </div>
         <div class="left-well-list-group-overflow-box overflow-y-auto d-grid border border-0 rounded-2 pe-1">
+
+            {% comment %} Active Project List {% endcomment %}
+            <h5 class="mb-3">Active</h5>
             <ol class="list-group">
-                {% for project in user.get_all_projects %}
-                    {% if project.status == "A" %}
-                        <li class="list-group-item list-group-item-dark d-flex justify-content-between align-items-start position-relative">
-                            <div class="ms-2 d-grid">
-                                <h4 class="fw-bold my-2" data-wf="{{ project.code }}" data-name="{{ project.name }}"><a href="{% url 'project_board' project.code %}">{{ project.name }}</a></h5>
-                                <div class="my-1 fw-light fs-6 text-body-color">Status: {{ project.get_status_display|underscore_to_title }}</div>
-                            </div>
-                            <div class="wf-code">Code: {{ project.code|project_hrc }}</div>
-                        </li>
-                    {% endif %}
+                {% for project in user.get_all_projects.active %}
+                    <li class="list-group-item list-group-item-dark">
+                        <div class="d-flex w-100 justify-content-between">
+                            <h5 class="mb-1"><a href="{% url 'project_board' project.code %}">{{ project.name }}</a></h5>
+                            <small>Code: {{ project.long_hrc }}</small>
+                        </div>
+                        <div class="d-grid">
+                            <small>Project Manager: {{ project.pm.full_name }}</small>
+                            <small>Status: <span class="text-success">{{ project.get_status_display|underscore_to_title }}</span></small>
+                        </div>
+                    </li>
+
                 {% empty %}
-                    <span class="fs-6">No projects</span>
+                    <span class="fs-6">No Active Projects</span>
+                {% endfor %}
+            </ol>
+
+            {% comment %} Inactive Project List {% endcomment %}
+            <h5 class="my-3">Inactive</h5>
+            <ol class="list-group">
+                {% for project in user.get_all_projects.on_hold %}
+                    <li class="list-group-item list-group-item-dark">
+                        <div class="d-flex w-100 justify-content-between">
+                            <h5 class="mb-1"><a href="{% url 'project_board' project.code %}">{{ project.name }}</a></h5>
+                            <small>Code: {{ project.long_hrc }}</small>
+                        </div>
+                        <div class="d-grid">
+                            <small>Project Manager: {{ project.pm.full_name }}</small>
+                            <small>Status: <span class="text-danger">{{ project.get_status_display|underscore_to_title }}</span></small>
+                        </div>
+                    </li>
+                {% empty %}
+                    <span class="fs-6">No Inactive Projects</span>
                 {% endfor %}
             </ol>
         </div>

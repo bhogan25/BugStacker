@@ -184,21 +184,21 @@ class ManageTicketBtnGroup extends React.Component {
                     ticketStatus: newStatus,
                 });
                 console.log(data.message)
-                appendAlert(`Ticket ${this.props.ticketHrc} has been set to ${STO[newStatus]}`, 'success')
+                appendAlert(`Ticket ${this.props.ticketHrc} has been set to ${STO[newStatus]}`, 'success');
 
                 // Update ticket status for Card and Table
-                ticketStatusElements.forEach((element) => element.innerHTML = `${STO[newStatus]}`)
+                ticketStatusElements.forEach((element) => element.innerHTML = `${STO[newStatus]}`);
 
             } else {
                 // Server Error, do not update UI, alert
-                console.error(`${data.error}`)
-                appendAlert(`Error advancing ticket ${this.props.ticketHrc} status to ${STO[newStatus]} was unsuccessful`, 'danger')
+                console.error(`${data.error}`);
+                appendAlert(`Error advancing ticket ${this.props.ticketHrc} status to ${STO[newStatus]} was unsuccessful`, 'danger');
             }
         })
         .catch(error => {
             // Client Error, do not update UI, alert
-            console.error(`Client Error during advancing ticket status to ${STO[newStatus]} state \n ${error}`)
-            appendAlert(`Request to advance ticket status to ${ticketCode} was unsuccessful`, 'warning')
+            console.error(`Client Error during advancing ticket status to ${STO[newStatus]} state \n ${error}`);
+            appendAlert(`Request to advance ticket status to ${ticketCode} was unsuccessful`, 'warning');
         })
     }
 
@@ -237,7 +237,7 @@ class ManageTicketBtnGroup extends React.Component {
     populateEditTicketModal() {
 
         // Get Edit Ticket Modal Inputs
-        const modalTitle = document.querySelector("#editTicketFormModalLabel")
+        const modalTitle = document.querySelector("#editTicketFormModalLabel");
         const textareaDescription = document.querySelector("#editTicketFormModal textarea[name='description']");
         const selectAssignees = document.querySelector("#editTicketFormModal select[name='assignees']");
         const inputTicketHrc = document.querySelector("#editTicketFormModal input[name='ticket_short_hrc']");
@@ -256,7 +256,7 @@ class ManageTicketBtnGroup extends React.Component {
         }
 
         // Clear/Reset Select Values
-        const selectAssigneesArray = Array.from(selectAssignees.children)
+        const selectAssigneesArray = Array.from(selectAssignees.children);
         selectAssigneesArray.forEach((option) => option.selected = false);
 
         // Set form values to ticket data values
@@ -310,7 +310,7 @@ const ticketInstances = document.querySelectorAll('.manage-ticket-btns');
 ticketInstances.forEach((e) => {
     if (e.dataset["status"] !== "D" | e.dataset["resolution"] === "NF") {
         ReactDOM.render(<ManageTicketBtnGroup 
-                            ticketHrc={e.dataset["ticketHrc"]}                     /// FIX: Change Prop Name and harvest attribute
+                            ticketHrc={e.dataset["ticketHrc"]}
                             ticketName={e.dataset["name"]}
                             ticketStatus={e.dataset["status"]} 
                             ticketResolution={e.dataset["resolution"] 

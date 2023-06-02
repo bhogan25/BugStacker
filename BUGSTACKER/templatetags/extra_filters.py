@@ -42,3 +42,16 @@ def ticket_hrc_long(ticket_code, ticket_id):
 def ticket_hrc_short(ticket_code, ticket_id):
     ticket_wf_code = Ticket.objects.get(id=ticket_id).workflow.code
     return f"W{ticket_wf_code}-T{ticket_code}"
+
+@register.filter(name="percentage")
+def percentage(numerator, denominator):
+    try:
+        n = float(numerator)
+        d = float(denominator)
+    except ValueError:
+        return ""
+
+    if n or d == 0:
+        return ""
+
+    return f"{round((n/d)*100, 2)}%"

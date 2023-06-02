@@ -18,10 +18,10 @@
         {% comment %}  New Ticket Form Modal  {% endcomment %}
         <div class="modal fade" id="ticketFormModal" tabindex="-1" aria-labelledby="ticketFormModalLabel" aria-hidden="true">
             <div class="modal-dialog">
-                <div class="modal-content bg-dark border border-primary">
+                <div class="modal-content bg-dark border border-black">
                     <div class="modal-header">
                         <h1 class="modal-title fs-5" id="ticketFormModalLabel">New Ticket</h1>
-                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
                     </div>
                     <div class="modal-body">
                         <form action="{% url 'project_board' project.code %}" method="post">
@@ -41,10 +41,10 @@
         {% comment %}  New Workflow Form Modal  {% endcomment %}
         <div class="modal fade" id="workflowFormModal" tabindex="-1" aria-labelledby="workflowFormModalLabel" aria-hidden="true">
             <div class="modal-dialog">
-                <div class="modal-content bg-dark border border-primary">
+                <div class="modal-content bg-dark border border-black">
                     <div class="modal-header">
                         <h1 class="modal-title fs-5" id="workflowFormModalLabel">New Workflow</h1>
-                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
                     </div>
                     <div class="modal-body">
                         <form action="{% url 'project_board' project.code %}" method="post">
@@ -61,14 +61,16 @@
             </div>
         </div>
 
-        {% comment %}  Edit Project Form Modal  {% endcomment %}
+        {% comment %}  Project Manager Tool Modals  {% endcomment %}
         {% if user.role == "PM" %}
+
+        {% comment %}  Edit Project Form Modal  {% endcomment %}
             <div class="modal fade" id="editProjectFormModal" tabindex="-1" aria-labelledby="editProjectFormModalLabel" aria-hidden="true">
                 <div class="modal-dialog">
-                    <div class="modal-content bg-dark border border-primary">
+                    <div class="modal-content bg-dark border border-black">
                         <div class="modal-header">
                             <h1 class="modal-title fs-5" id="editProjectFormModalLabel">Edit Project</h1>
-                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                            <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
                         </div>
                         <div class="modal-body">
                             <form action="{% url 'project_board' project.code %}" method="post" id="editProjectForm">
@@ -84,15 +86,38 @@
                     </div>
                 </div>
             </div>
+
+            {% comment %}  Complete Project Confirmation Modal  {% endcomment %}
+            <div class="modal fade" id="completeProjectModal" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="completeProjectModalLabel" aria-hidden="true">
+                <div class="modal-dialog">
+                    <div class="modal-content bg-dark border border-black">
+                        <div class="modal-header">
+                            <h1 class="modal-title fs-5" id="completeProjectModalLabel">Confirm Project Completion</h1>
+                            <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                        </div>
+                        <div class="modal-body">
+                            <p>
+                                Are you <em>sure</em> you want to complete project {{ project.long_hrc }}? 
+                                This action is <strong>irreversible</strong>.
+                            </p>
+                            <small>*Once completed the project will be sent to your project history.</small>
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">No, cancel request</button>
+                            <button type="button" class="btn btn-primary" data-bs-dismiss="modal" data-action="complete" data-target="{{ project.code }}" id="completeProjectBtn">Yes, complete this project</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
         {% endif %}
 
         {% comment %}  Edit Workflow Form Modal  {% endcomment %}
         <div class="modal fade" id="editWorkflowFormModal" tabindex="-1" aria-labelledby="editWorkflowFormModalLabel" aria-hidden="true">
             <div class="modal-dialog">
-                <div class="modal-content bg-dark border border-primary">
+                <div class="modal-content bg-dark border border-black">
                     <div class="modal-header">
                         <h1 class="modal-title fs-5" id="editWorkflowFormModalLabel">Edit Workflow</h1>
-                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
                     </div>
                     <div class="modal-body">
                         <form action="{% url 'project_board' project.code %}" method="post" id="editWorkflowForm">
@@ -112,10 +137,10 @@
         {% comment %}  Edit Ticket Form Modal  {% endcomment %}
         <div class="modal fade" id="editTicketFormModal" tabindex="-1" aria-labelledby="editTicketFormModalLabel" aria-hidden="true">
             <div class="modal-dialog">
-                <div class="modal-content bg-dark border border-primary">
+                <div class="modal-content bg-dark border border-black">
                     <div class="modal-header">
                         <h1 class="modal-title fs-5" id="editTicketFormModalLabel">Edit Ticket</h1>
-                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
                     </div>
                     <div class="modal-body">
                         <form action="{% url 'edit_ticket' project.code %}" method="post">
@@ -135,10 +160,10 @@
         {% comment %}  Ticket Resolution Modal  {% endcomment %}
         <div class="modal fade" id="ticketResolutionModal" tabindex="-1" aria-labelledby="ticketResolutionModalLabel" aria-hidden="true">
             <div class="modal-dialog">
-                <div class="modal-content bg-dark border border-primary">
+                <div class="modal-content bg-dark border border-black">
                     <div class="modal-header">
                         <h1 class="modal-title fs-5" id="ticketResolutionModalLabel">Resolve Ticket: </h1>
-                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
                     </div>
                     <div class="modal-body py-3">
                         <h5>Select a Resolution:</h5>

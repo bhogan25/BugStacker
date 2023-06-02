@@ -1,13 +1,135 @@
+{% load extra_filters %}
+
 <div class="mb-5 col-xxl-3 d-none d-xxl-grid">
     <div class="pt-2 m-2 pb-2 px-4">
         <h2>Hello, <strong>{{ user.first_name }}</strong></h2>
         <div>Role: <strong>{{ user.role }}</strong></div>
-        <hr>
-        
+
         {% comment %} Project Manager Tools {% endcomment %}
         {% if user.role == "PM" %}
-            <h5>Manager Tools</h3>
-            <div class="d-flex justify-content-center mt-1">
+            <div class="my-2 pt-2 px-3 management-btns overflow-auto">
+                <h5 class="mb-3">Manager Tools</h5>
+                <div class="container">
+                    <div class="row mb-1">
+                        <div class="d-grid col-6 pe-1">
+                            <button type="button" class="btn btn-light" data-bs-toggle="modal" data-bs-target="#editProjectFormModal">
+                                Edit Project
+                            </button>
+                        </div>
+                        <div class="d-grid col-6 p-0">
+                            {% if project.status == "A" %}
+                                <button type="button" class="btn btn-outline-warning btn-sm" data-action="change_status" data-target="{{ project.code }}" data-status="{{ project.status }}" id="changeProjectStatusBtn">
+                                    Deactivate
+                                </button>
+                                <button type="button" class="btn btn-outline-danger btn-sm mt-1" data-bs-toggle="modal" data-bs-target="#completeProjectModal" id="initiateComplete" disabled>
+                                    Complete
+                                </button>
+                            {% elif project.status == "I" %}
+                                <button type="button" class="btn btn-outline-warning btn-sm" data-action="change_status" data-target="{{ project.code }}" data-status="{{ project.status }}" id="changeProjectStatusBtn">
+                                    Reactivate
+                                </button>
+                                <button type="button" class="btn btn-outline-danger btn-sm mt-1" data-bs-toggle="modal" data-bs-target="#completeProjectModal" id="initiateComplete">
+                                    Complete
+                                </button>
+                            {% endif %}
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="d-grid col-12 mb-3 pe-0">
+                            <button class="btn btn-outline-light btn-sm" type="button" data-bs-toggle="offcanvas" data-bs-target="#projectInsights" aria-controls="projectInsights">
+                                Project Insights
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            {% comment %} Offcanvas {% endcomment %}
+            
+
+            <div class="offcanvas offcanvas-end text-bg-dark" data-bs-scroll="true" data-bs-backdrop="false" tabindex="-1" id="projectInsights" aria-labelledby="projectInsightsLabel">
+                <div class="offcanvas-header">
+                    <h2 class="offcanvas-title" id="projectInsightsLabel">Project Insights</h2>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="offcanvas" aria-label="Close"></button>
+                </div>
+                <div class="offcanvas-body">
+                    <h3>Workflows</h3>
+                    <div class="mx-3 mb-4 pt-2 px-3 insight-table">
+                        <table class="table table-dark">
+                            <thead>
+                                <tr>
+                                    <th scope="col">State</th>
+                                    <th scope="col">#</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <th scope="row">Active</th>
+                                    <td>{{ project.workflows.active.count }}</td>
+                                </tr>
+                                <tr>
+                                    <th scope="row">Archived</th>
+                                    <td>{{ project.workflows.archived.count }}</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <h3>Tickets</h3>
+                    <h5>Active</h5>
+                    <div class="mx-3 mb-2 pt-2 px-3 insight-table">
+                        <table class="table table-dark">
+                            <thead>
+                                <tr>
+                                    <th scope="col">State</th>
+                                    <th scope="col">#</th>
+                                    <th scope="col">% of Active</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <th scope="row">Created</th>
+                                    <td>{{ project.all_tickets.not_started.count }}</td>
+                                    <td>{{ project.all_tickets.not_started.count|percentage:project.all_tickets.open.count }}</td>
+                                </tr>
+                                <tr>
+                                    <th scope="row">In Progress</th>
+                                    <td>{{ project.all_tickets.in_progress.count }}</td>
+                                    <td>{{ project.all_tickets.in_progress.count|percentage:project.all_tickets.open.count }}</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <h5>Closed</h5>
+                    <div class="mx-3 mb-2 pt-2 px-3 insight-table">
+                        <table class="table table-dark">
+                            <thead>
+                                <tr>
+                                    <th scope="col">Resolution</th>
+                                    <th scope="col">#</th>
+                                    <th scope="col">% of Closed</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <th scope="row">Fixed</th>
+                                    <td>{{ project.all_tickets.fixed.count }}</td>
+                                    <td>{{ project.all_tickets.fixed.count|percentage:project.all_tickets.resolved.count}}</td>
+                                </tr>
+                                <tr>
+                                    <th scope="row">No Issue</th>
+                                    <td>{{ project.all_tickets.no_issue.count }}</td>
+                                    <td>{{ project.all_tickets.no_issue.count|percentage:project.all_tickets.resolved.count }}</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            {% comment %} Remove these buttons after proof of functionality of projects above {% endcomment %}
+            <!-- <div class="d-flex justify-content-center mt-1">
                 <div class="pm-tools btn-group mt-1">
                     <button type="button" class="btn btn-outline-light d-inline tool" data-bs-toggle="modal" data-bs-target="#editProjectFormModal">
                         Edit Project
@@ -27,28 +149,8 @@
                         Complete
                     </button>
                 </div>
-            </div>
-            <hr>
+            </div> -->
         {% endif %}
-
-        <h2 class="my-3">Project Insights</h2>
-        <h5>Workflows</h5>
-        <div>Workflows: {{ project.workflows.count }}</div>
-        <ul>
-            <li>Active: {{ project.workflows.active.count }}</li>
-            <li>Archived: {{ project.workflows.archived.count }}</li>
-        </ul>
-        <h5>Tickets</h5>
-        <div>Open: {{ project.all_tickets.open.count }}</div>
-        <ul>
-            <li>Create State: {{ project.all_tickets.not_started.count }}</li>
-            <li>In Progress: {{ project.all_tickets.in_progress.count }}</li>
-        </ul>
-        <div>Resolved: {{ project.all_tickets.resolved.count }}</div>
-        <ul>
-            <li>Fixed: {{ project.all_tickets.fixed.count }}</li>
-            <li>No Issue: {{ project.all_tickets.no_issue.count }}</li>
-        </ul>
 
         {% include "BUGSTACKER/notifications.html" %}
     </div>

@@ -4,21 +4,31 @@
     <div class="m-2 pt-2 pb-2 pe-3 ps-1">
         <h3>Workflows</h3>
         <hr>
-        <div class="d-grid left-well-width">
-            <button type="button" class="tool btn btn-light mb-3" title="Edit Workflow" data-bs-toggle="modal" data-bs-target="#editWorkflowFormModal">
-                Edit Workflows
-            </button>
+        <div class="container">
+            <div class="row">
+                <div class="d-grid col-12 p-1">
+                    <button type="button" class="tool btn btn-light mb-1" title="Edit Workflow" data-bs-toggle="modal" data-bs-target="#editWorkflowFormModal">
+                        Edit Workflows
+                    </button>
+                </div>
+            </div>
+            <div class="row mb-3">
+                <div class="d-grid col-6 p-1">
+                    <button class="btn btn-outline-warning btn-sm" id="activeWfViewBtn" disabled>Active</button>
+                </div>
+                <div class="d-grid col-6 p-1">
+                    <button class="btn btn-warning btn-sm" id="archivedWfViewBtn">Archived</button>
+                </div>
+            </div>
         </div>
         <div class="left-well-list-group-overflow-box border border-0 rounded-2 overflow-y-auto pe-1">
-            <ol class="list-group">
-                {% for workflow in project.workflows.all %}
+
+            {% comment %} Active Workflow List {% endcomment %}
+            <ol class="list-group" style="display: block;" id="activeWfList">
+                {% for workflow in project.workflows.active %}
                     <li class="list-group-item list-group-item-dark d-flex justify-content-between align-items-start position-relative" data-archived="{{ workflow.archived }}">
                         <div class="ms-2 d-block">
-                            {% if workflow.archived == False %}
                             <h5 class="fw-bold my-2" data-wf="{{ workflow.code }}" data-name="{{ workflow.name }}">{{ workflow.name }}</h5>
-                            {% else %}
-                            <h5 class="fw-bold my-2" data-wf="{{ workflow.code }}" data-name="{{ workflow.name }}">Archived - {{ workflow.name }}</h5>
-                            {% endif %}
                             <p class="mb-1 wf-list-item-width" id="wfdesc_{{ workflow.code }}">{{ workflow.description }}</p>
                             <div class="fw-light fs-6 text-body-color">{{ workflow.created }}</div>
                         </div>
@@ -29,22 +39,46 @@
                         <span class="badge rounded-pill ticket-pill">{{ workflow.tickets.count }} Tickets</span>
                         {% endif %}
                         <div class="wf-code">Code: {{ workflow.code|wf_hrc_short:workflow.id }}</div>
-                        <input hidden id="wf_"/>
-            
+                        <!-- <input hidden id="wf_"/> -->
+
                         <div class="d-grid">
                             <button type="button" class="archiveUnarchiveBtn tool btn btn-outline-warning mt-3 mb-2" data-action="change_archive_state" data-project="{{ project.code }}" data-target="{{ workflow.code }}">
-                                {% if workflow.archived == False %}
-                                    Archive
-                                {% else %}
-                                    Unarchive
-                                {% endif %}
+                                Archive
                             </button>
                         </div>
                     </li>
                 {% empty %}
-                    <span class="fs-6 text-light">No Workflows...</span>
+                    <span class="fs-6 text-light">No Active Workflows...</span>
                 {% endfor %}
             </ol>
+
+            {% comment %} Archived Workflow List {% endcomment %}
+            <ol class="list-group" style="display: none;" id="archivedWfList">
+                {% for workflow in project.workflows.archived %}
+                    <li class="list-group-item list-group-item-dark d-flex justify-content-between align-items-start position-relative" data-archived="{{ workflow.archived }}">
+                        <div class="ms-2 d-block">
+                            <h5 class="fw-bold my-2" data-wf="{{ workflow.code }}" data-name="{{ workflow.name }}">{{ workflow.name }}</h5>
+                            <p class="mb-1 wf-list-item-width" id="wfdesc_{{ workflow.code }}">{{ workflow.description }}</p>
+                            <div class="fw-light fs-6 text-body-color">{{ workflow.created }}</div>
+                        </div>
+
+                        {% if workflow.tickets.count == 1 %}
+                        <span class="badge rounded-pill ticket-pill">{{ workflow.tickets.count }} Ticket</span>
+                        {% else %}
+                        <span class="badge rounded-pill ticket-pill">{{ workflow.tickets.count }} Tickets</span>
+                        {% endif %}
+                        <div class="wf-code">Code: {{ workflow.code|wf_hrc_short:workflow.id }}</div>
+                        <!-- <input hidden id="wf_"/> -->
+
+                        <div class="d-grid">
+                            <button type="button" class="archiveUnarchiveBtn tool btn btn-outline-warning mt-3 mb-2" data-action="change_archive_state" data-project="{{ project.code }}" data-target="{{ workflow.code }}">
+                                Unarchive
+                            </button>
+                        </div>
+                    </li>
+                {% empty %}
+                    <span class="fs-6 text-light">No Archived Workflows...</span>
+                {% endfor %}
         </div>
     </div>
 </div>

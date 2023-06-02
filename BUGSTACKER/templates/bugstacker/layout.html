@@ -57,10 +57,7 @@
         </div>
       </nav>
 
-      {% comment %} Include project form modal {% endcomment %}
-      {% if user.role == "PM" %}
-        {% include "BUGSTACKER/new-project-modal.html" with user=user project=project project_form=project_form %}
-      {% endif %}
+      
 
       <div class="container-xxl main-content overflow-y-auto main-content-overflow">
         <div class="row primary-row justify-content-center">

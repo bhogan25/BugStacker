@@ -351,11 +351,11 @@ class BugstackerTestCase(TestCase):
 
         self.assertEqual(active_projects, 2)
 
-    # Test finished method
-    def test_ProjectQuerySet_finished(self):
-        finished_projects = Project.objects.all().finished().count()
+    # Test completed method
+    def test_ProjectQuerySet_completed(self):
+        completed_projects = Project.objects.all().completed().count()
 
-        self.assertEqual(finished_projects, 1)
+        self.assertEqual(completed_projects, 1)
 
     # Test on_hold method
     def test_ProjectQuerySet_on_hold(self):

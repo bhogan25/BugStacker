@@ -286,7 +286,7 @@ a:hover {
 }
 
 .left-well-list-group-overflow-box { 
-    max-height: 76vh;
+    max-height: 71vh;
 }
 
 .wf-list-item-width {
@@ -307,4 +307,17 @@ a:hover {
 
 .filter-btn {
     min-width: 80px;
+}
+
+.management-btns {
+ @extend %bubble;
+}
+
+.notifications {
+    @extend %bubble;
+}
+
+.insight-table {
+    @extend %bubble;
+    background-color: black;
 }

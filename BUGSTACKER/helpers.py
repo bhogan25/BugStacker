@@ -37,3 +37,13 @@ def extract_mrc_from_hrc(re_code):
         return codes
     else:
         raise Exception("HRC code does not match standard pattern")
+
+
+# Returns a safe version of a client's choice of a model choice field
+def clean_choice_field_data(raw_value, Model):
+    try:
+        model_values = [value for value in Model]
+        target_value_index = model_values.index(raw_value)
+        return model_values[target_value_index]
+    except Exception as e:
+        return None

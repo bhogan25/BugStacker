@@ -18,10 +18,11 @@ class User(AbstractUser):
     # Get projects involved
     def get_all_projects(self):
         return self.projects_managed.all() if self.projects_managed.all() else self.projects_working.all()
-    
+
+    # TODO: Test
     def full_name(self):
         return f"{self.first_name} {self.last_name}"
-  
+
     def __str__(self):
         return f"{self.first_name} {self.last_name} ({self.role})"
 
@@ -33,13 +34,17 @@ class ProjectQuerySet(models.QuerySet):
     def active(self):
         return self.filter(status="A", completed=False)
 
-    # Get finished projects (inactive & complete)
-    def finished(self):
-        return self.filter(status="I", completed=True)
-    
+    # Get completed projects
+    def completed(self):
+        return self.filter(completed=True)
+
     # Get on hold projects (inactive & incomplete)
     def on_hold(self):
         return self.filter(status="I", completed=False)
+
+    # Get incomplete projects - TODO: Test
+    def incomplete(self):
+        return self.filter(completed=False)
 
 
 # Project
@@ -66,7 +71,6 @@ class Project(models.Model):
     # Get TicketQuerySet for all project's tickets
     def all_tickets(self):
         base = Ticket.objects.none()
-        
         for workflow in self.workflows.all():
             base = base | workflow.tickets.all()
         return base
@@ -75,10 +79,12 @@ class Project(models.Model):
     def all_members(self):
         team_members = self.team_members.all()
         pm = User.objects.filter(id=self.pm.id)
-
         all_members = team_members | pm
-
         return all_members
+
+    # TODO: Test
+    def long_hrc(self):
+        return f"P{self.code}"
 
     def __str__(self):
         return f"{self.name}"
@@ -106,6 +112,14 @@ class Workflow(models.Model):
 
     objects = WorkflowQuerySet.as_manager()
 
+    # TODO: Test
+    def long_hrc(self):
+        return f"P{self.project.code}-W{self.code}"
+
+    # TODO: Test
+    def short_hrc(self):
+        return f"W{self.code}"
+
     def __str__(self):
         return f"{self.code}: {self.name}"
 
@@ -116,7 +130,7 @@ class TicketQuerySet(models.QuerySet):
     # Get open tickets
     def open(self):
         return self.exclude(status="D")
-    
+
     # Get tickets not started 
     def not_started(self):
         return self.filter(status="C")
@@ -140,7 +154,7 @@ class TicketQuerySet(models.QuerySet):
     # Get resolved tickets
     def resolved(self):
         return self.filter(status="D")
-    
+
     # Get resolved & fixed tickets
     def fixed(self):
         return self.filter(status="D").filter(resolution="F")
@@ -157,10 +171,18 @@ class Ticket(models.Model):
         IN_PROGRESS = "IP"
         DONE = "D"
 
+        @classmethod
+        def values_array(cls):
+            return [member.value for member in cls]
+
     class Resolution(models.TextChoices):
         FIXED = "F"
         NO_ISSUE = "NI"
         NOT_FIXED = "NF"
+
+        @classmethod
+        def values_array(cls):
+            return [member.value for member in cls]
 
     class Priority(models.IntegerChoices):
         HIGH = 3
@@ -193,22 +215,32 @@ class Ticket(models.Model):
 
     objects = TicketQuerySet.as_manager()
 
+    # TODO: Test
     def string_assignees(self):
         if self.assignees.all().count() > 0:
             return ", ".join([user.full_name() for user in self.assignees.all()])
         else:
             return None
 
+    # TODO: Test
     def slug_assignees(self):
         if self.assignees.all().count() > 0:
             return "-".join([user.full_name() for user in self.assignees.all()])
         else:
             return None
 
+    # TODO: Test
+    def long_hrc(self):
+        return f"P{self.workflow.project.code}-W{self.workflow.code}-T{self.code}"
+
+    # TODO: Test
+    def short_hrc(self):
+        return f"W{self.workflow.code}-T{self.code}"
+
     def __str__(self):
         return f"Ticket {self.workflow.project.code}-{self.workflow.code}-{self.code}"
 
-# Notifications
+# Notifications --- TODO: REMOVE ALL BELOW ---
 class Notification(AbstractNotification):
 
 

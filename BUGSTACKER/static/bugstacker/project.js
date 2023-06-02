@@ -1,5 +1,5 @@
 // Execute after content has been loaded
-import { setAllDisplayProps, returnProjectBodyObject, manageProjectChangeUI, populateEditWorkflowInputs } from './helpers.js';
+import { setAllDisplayProps, manageProjectChangeUI, populateEditWorkflowInputs, appendAlert } from './helpers.js';
 
 document.addEventListener('DOMContentLoaded', function () {
 
@@ -35,8 +35,61 @@ document.addEventListener('DOMContentLoaded', function () {
     // Show table btn & show cards
     setAllDisplayProps(tableViewBtn, 'inline');
     cards.style.display = 'block';
-  } 
-  
+  }
+
+
+  // Toggle Active/Archived Workflow lists
+
+  // Get Active/Archive Workflow btns
+  const activeWfViewBtn = document.getElementById("activeWfViewBtn");
+  const archivedWfViewBtn = document.getElementById("archivedWfViewBtn");
+
+  // Get Workflow list elements
+  const activeWfList = document.getElementById("activeWfList");
+  const archivedWfList = document.getElementById("archivedWfList");
+
+  // Active mode (clicked 'active')
+  activeWfViewBtn.onclick = function(event) {
+    event.preventDefault()
+
+    // Disable active btn
+    event.target.style.backgroundColor = 'transparent';
+    event.target.style.color = 'rgb(255, 193, 7)';
+    event.target.disabled = true;
+
+    // Enable archived btn
+    archivedWfViewBtn.disabled = false;
+    archivedWfViewBtn.style.backgroundColor = 'rgb(255, 193, 7)';
+    archivedWfViewBtn.style.color = 'black';
+
+    // Show active list
+    activeWfList.style.display = 'block';
+
+    // Hide archived list
+    archivedWfList.style.display = 'none';
+  }
+
+  // Archived mode (clicked 'archived')
+  archivedWfViewBtn.onclick = function(event) {
+    event.preventDefault()
+
+    // Disable archived btn
+    event.target.style.backgroundColor = 'transparent';
+    event.target.style.color = 'rgb(255, 193, 7)';
+    event.target.disabled = true;
+
+    // Enable active btn
+    activeWfViewBtn.disabled = false;
+    activeWfViewBtn.style.backgroundColor = 'rgb(255, 193, 7)';
+    activeWfViewBtn.style.color = 'black';
+
+    // Show archived list
+    archivedWfList.style.display = 'block';
+
+    // Hide active list
+    activeWfList.style.display = 'none';
+  }
+
 
   // Edit Workflow Form dynamic input population
 
@@ -65,26 +118,6 @@ document.addEventListener('DOMContentLoaded', function () {
     archiveUnarchiveBtns[i].onclick = archiveWorkflow;
   }
 
-
-  // Apply Event Handlers for manageTicket()
-  // const manageTicketBtns = document.querySelectorAll('.manageTicketBtn');
-  // for (let i = 0; i < manageTicketBtns.length; i++) {
-  //   manageTicketBtns[i].onclick = manageTicket;
-  // }
-
-  // // Apply event handlers for edit ticket button
-  // const editTicketBtns = document.querySelectorAll('.editTicketBtn');
-  // for (let i = 0; i < editTicketBtns.length; i++) {
-  //   editTicketBtns[i].onclick = (event) => {
-  //     let target_ticket = event.target.id.split("_").pop()
-
-  //   }
-  // }
-
-  // // Apply event handler for change ticket status
-  // const changeTicketStatusBtns = document.querySelectorAll('.changeTicketStatusBtn')
-
-
   // Manage Project
   function manageProject(event) {
     event.preventDefault();
@@ -93,28 +126,29 @@ document.addEventListener('DOMContentLoaded', function () {
     const action = event.target.dataset.action;
     const target = event.target.dataset.target;
 
-    console.log(action);
-    console.log(target);
-
-    // Assign Body object
-    let bodyObj = returnProjectBodyObject(action, event.target)
-
     // Request Resource change
     fetch(`/project/${action}/${target}`, {
       method: 'PATCH',
-      body: JSON.stringify(bodyObj)
     })
     .then(response => response.json())
     .then(data => {
       if (!data.error) {
         console.log(data.message)
         manageProjectChangeUI(action, event.target)
+
+        if (action === "change_status") {
+          appendAlert(`Project P${target} has been ${event.target.innerHTML.trim() === 'Reactivate' ? 'deactivated' : 'reactivated'}`, 'success')
+        } else if (action === "complete") {
+          appendAlert(`Project P${target} has been completed`, 'success')
+        }
       } else {
         console.error(data.error)
+        appendAlert(`Request on Project P${target} was unable to be completed.`, 'danger')
       }
     })
     .catch(error => {
       console.error(error)
+      appendAlert(`Request on Project P${target} was unsuccessfull.`, 'warning')
     })
   }
 
@@ -138,61 +172,31 @@ document.addEventListener('DOMContentLoaded', function () {
       .then(data => {
         if (!data.error) {
           console.log(data.message)
-          
+
+          let actionCompleted;
+
           // Toggle archive/unarchive button text
           if (event.target.innerHTML.trim() === "Archive") {
             event.target.innerHTML = "Unarchive";
+            actionCompleted = "archived";
           } else if (event.target.innerHTML.trim() === "Unarchive") {
             event.target.innerHTML = "Archive";
+            actionCompleted = "unarchived";
           }
+
+          // Alert User
+          appendAlert(`Workflow W${target} has been ${actionCompleted}`, 'success');
         } else {
           console.error(data.error)
+          // Alert User
+          appendAlert(`Cannot complete request on workflow W${target}`, 'danger');
         }
       })
       .catch(error => {
         console.error(error)
+        // Alert User
+        appendAlert(`Workflow W${target} was not updated. Refresh and try again.`, 'warning');
       })
-  }
-
-
-  // Manage ticket
-  function manageTicket(event) {
-    event.preventDefault();
-
-    // Get URL arguments
-    const action = event.target.dataset.action;
-    const project = event.target.dataset.project;
-    const workflow = event.target.dataset.workflow;
-    const target = event.target.dataset.target;
-
-    console.log(action);
-    console.log(project);
-    console.log(workflow);
-    console.log(target)
-
-    // Check action and target values
-
-    // Request Resource change
-    fetch(`/ticket/${action}/${project}/${workflow}/${target}`, {
-      method: 'PATCH',
-      body: JSON.stringify({
-        action: action,
-        project: project,
-        workflow: workflow,
-        target: target,
-      })
-    })
-    .then(response => response.json())
-    .then(data => {
-      if (!data.error) {
-        console.log(data.message)
-      } else {
-        console.error(data.error)
-      }
-    })
-    .catch(error => {
-      console.error(error)
-    })
   }
 
 })

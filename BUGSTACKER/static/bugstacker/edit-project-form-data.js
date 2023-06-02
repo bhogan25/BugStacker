@@ -4,14 +4,12 @@ document.addEventListener('DOMContentLoaded', function () {
   const projectName = document.getElementById('projectName').innerHTML.trim();
   const projectDescription = document.getElementById('projectDescription').innerHTML.trim();
   const pm = document.getElementById('projectPm')
-  const pmId = pm.dataset.id;
   const teamMemberElements = document.querySelectorAll(".team-member");
   const teamMemeberNames = [];
 
   for (let i = 0; i < teamMemberElements.length; i++) {
     teamMemeberNames.push(teamMemberElements[i].innerHTML.trim().split(" - ").shift());
   }
-
 
   // Get project form inputs
   const inputName = document.querySelector('form#editProjectForm input[name="name"]');
@@ -26,8 +24,6 @@ document.addEventListener('DOMContentLoaded', function () {
   for (let i = 0; i < inputPm.children.length; i++) {
     if ( pm.innerHTML === inputPm.children[i].innerHTML.trim().split(" (").shift() & parseInt(pm.dataset.id) === parseInt(inputPm.children[i].value) ) {
       inputPm.children[i].selected = true;
-    } else {
-      console.log(`${pm.innerHTML} ID: ${parseInt(pm.dataset.id)} != ${inputPm.children[i].innerHTML.trim().split(" (").shift()} ID: ${parseInt(inputPm.children[i].value)}`)
     }
   }
 
@@ -37,4 +33,3 @@ document.addEventListener('DOMContentLoaded', function () {
     }
   }
 })
-
